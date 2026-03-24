@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	"go-microservice/internal/dto"
@@ -43,7 +42,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 	result, err := h.svc.Register(c.Context(), req)
 	if err != nil {
-		return h.handleError(c, err)
+		return handleServiceError(c, err)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(result)
@@ -64,7 +63,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	result, err := h.svc.Login(c.Context(), req, c.IP())
 	if err != nil {
-		return h.handleError(c, err)
+		return handleServiceError(c, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
@@ -85,7 +84,7 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 
 	result, err := h.svc.Refresh(c.Context(), req)
 	if err != nil {
-		return h.handleError(c, err)
+		return handleServiceError(c, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
@@ -101,37 +100,8 @@ func (h *AuthHandler) Me(c *fiber.Ctx) error {
 
 	result, err := h.svc.GetCurrentUser(c.Context(), claims.UserID)
 	if err != nil {
-		return h.handleError(c, err)
+		return handleServiceError(c, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
-}
-
-// handleError maps service-layer errors to appropriate HTTP responses.
-func (h *AuthHandler) handleError(c *fiber.Ctx, err error) error {
-	return handleServiceError(c, err)
-}
-
-// handleServiceError is the shared error mapper used by all handlers.
-func handleServiceError(c *fiber.Ctx, err error) error {
-	var apiErr *svcerrors.APIError
-
-	switch {
-	case errors.Is(err, svcerrors.ErrUserAlreadyExists):
-		apiErr = svcerrors.NewConflict(err.Error())
-	case errors.Is(err, svcerrors.ErrInvalidCredentials):
-		apiErr = svcerrors.NewUnauthorized(err.Error())
-	case errors.Is(err, svcerrors.ErrLoginLocked):
-		apiErr = svcerrors.NewTooManyRequests("30m")
-	case errors.Is(err, svcerrors.ErrInvalidToken):
-		apiErr = svcerrors.NewUnauthorized(err.Error())
-	case errors.Is(err, svcerrors.ErrInvalidTokenType):
-		apiErr = svcerrors.NewUnauthorized(err.Error())
-	case errors.Is(err, svcerrors.ErrUserNotFound):
-		apiErr = svcerrors.NewNotFound(err.Error())
-	default:
-		apiErr = svcerrors.NewInternal("internal server error")
-	}
-
-	return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
 }
