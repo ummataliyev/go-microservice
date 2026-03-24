@@ -146,6 +146,7 @@ func Load() (*Config, error) {
 	// Read .env file
 	v.SetConfigName(".env")
 	v.SetConfigType("env")
+	v.AddConfigPath("infra")
 	v.AddConfigPath(".")
 	_ = v.ReadInConfig() // ignore error if .env doesn't exist
 
