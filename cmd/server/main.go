@@ -65,10 +65,8 @@ func main() {
 	// 6. Wire dependencies.
 	var repo repository.UserRepository
 	switch provider {
-	case "postgres":
-		repo = repository.NewUserPostgres(gormDB)
-	case "mysql":
-		repo = repository.NewUserMySQL(gormDB)
+	case "postgres", "mysql":
+		repo = repository.NewGORMUser(gormDB)
 	case "mongo":
 		repo = repository.NewUserMongo(mongoDB)
 	}

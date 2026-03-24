@@ -20,7 +20,7 @@ func TestCreateUser_Integration(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	t.Cleanup(func() { testutil.CleanupTestDB(t, db) })
 
-	repo := repository.NewUserPostgres(db)
+	repo := repository.NewGORMUser(db)
 	ctx := context.Background()
 
 	user := &models.User{
@@ -37,7 +37,7 @@ func TestGetByEmail_Integration(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	t.Cleanup(func() { testutil.CleanupTestDB(t, db) })
 
-	repo := repository.NewUserPostgres(db)
+	repo := repository.NewGORMUser(db)
 	ctx := context.Background()
 
 	user := &models.User{
@@ -57,7 +57,7 @@ func TestGetAll_Pagination_Integration(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	t.Cleanup(func() { testutil.CleanupTestDB(t, db) })
 
-	repo := repository.NewUserPostgres(db)
+	repo := repository.NewGORMUser(db)
 	ctx := context.Background()
 
 	for i := 0; i < 5; i++ {
@@ -77,7 +77,7 @@ func TestSoftDelete_Integration(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	t.Cleanup(func() { testutil.CleanupTestDB(t, db) })
 
-	repo := repository.NewUserPostgres(db)
+	repo := repository.NewGORMUser(db)
 	ctx := context.Background()
 
 	user := &models.User{
@@ -109,7 +109,7 @@ func TestCount_Integration(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	t.Cleanup(func() { testutil.CleanupTestDB(t, db) })
 
-	repo := repository.NewUserPostgres(db)
+	repo := repository.NewGORMUser(db)
 	ctx := context.Background()
 
 	for i := 0; i < 3; i++ {
