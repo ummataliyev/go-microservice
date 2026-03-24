@@ -88,6 +88,7 @@ func TestListUsers_Paginated(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users?page=1&per_page=10", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	respBody, _ := io.ReadAll(resp.Body)
@@ -113,6 +114,7 @@ func TestGetUser_Found(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users/1", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	respBody, _ := io.ReadAll(resp.Body)
@@ -136,6 +138,7 @@ func TestGetUser_NotFound(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users/999", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
 
 	mockSvc.AssertExpectations(t)
@@ -164,6 +167,7 @@ func TestCreateUser_Success(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 	respBody, _ := io.ReadAll(resp.Body)
@@ -187,6 +191,7 @@ func TestDeleteUser_Success(t *testing.T) {
 	req := httptest.NewRequest(http.MethodDelete, "/api/v1/users/1", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	respBody, _ := io.ReadAll(resp.Body)
