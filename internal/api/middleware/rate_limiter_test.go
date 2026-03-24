@@ -28,6 +28,7 @@ func TestRateLimiter_SkipsWhenDisabled(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -51,12 +52,14 @@ func TestRateLimiter_InMemoryFallback(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
+		resp.Body.Close()
 		assert.Equal(t, http.StatusOK, resp.StatusCode, "request %d should pass", i+1)
 	}
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusTooManyRequests, resp.StatusCode)
 	assert.NotEmpty(t, resp.Header.Get("Retry-After"))
 

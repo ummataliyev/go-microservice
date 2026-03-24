@@ -23,6 +23,7 @@ func TestTrustedHost_AllowsValidHost(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -36,6 +37,7 @@ func TestTrustedHost_RejectsInvalidHost(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://evil.com/", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusMisdirectedRequest, resp.StatusCode)
 
 	var errResp domainerrors.ErrorResponse
@@ -54,5 +56,6 @@ func TestTrustedHost_AllowsAllWhenEmpty(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://anything.com/", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }

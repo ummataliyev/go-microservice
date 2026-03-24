@@ -53,6 +53,7 @@ func TestAuth_ValidToken(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -68,6 +69,7 @@ func TestAuth_MissingHeader(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 
 	var errResp errors.ErrorResponse
@@ -92,6 +94,7 @@ func TestAuth_InvalidToken(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 
 	var errResp errors.ErrorResponse
