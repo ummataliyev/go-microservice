@@ -7,14 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go-microservice/internal/errors"
+	"go-microservice/internal/security"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go-microservice/internal/errors"
-	"go-microservice/internal/security"
 )
 
-// mockTokenService is a test double for security.TokenService.
 type mockTokenService struct {
 	claims *security.Claims
 	err    error

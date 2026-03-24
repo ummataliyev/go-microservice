@@ -33,7 +33,9 @@ A production-ready Go microservice template with comprehensive features for buil
 - **Input Validation** - Struct tag validation with `go-playground/validator`
 
 ### Developer Experience
+- **Swagger Docs** - Auto-generated OpenAPI docs served at `/swagger/`
 - **Docker Support** - Multi-stage build (~15MB production image)
+- **Docker Compose** - Full local stack (API, PostgreSQL, Redis, Nginx)
 - **Database Migrations** - Embedded SQL migrations with golang-migrate
 - **Makefile** - Common development commands
 - **Testing Suite** - Unit tests with testify, integration tests with build tags
@@ -127,6 +129,11 @@ go-microservice/
 │       ├── entrypoint.sh           # Container entrypoint
 │       └── migrate.sh              # Migration runner
 │
+├── docs/
+│   ├── docs.go                    # Generated Swagger init
+│   ├── swagger.json               # OpenAPI spec (JSON)
+│   └── swagger.yaml               # OpenAPI spec (YAML)
+│
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                  # GitHub Actions (lint, test)
@@ -142,7 +149,7 @@ go-microservice/
 
 ### Prerequisites
 
-- **Go 1.22+**
+- **Go 1.25+**
 - **PostgreSQL 17+**
 - **Redis 7+**
 - **Docker & Docker Compose** (optional, recommended)
@@ -162,7 +169,7 @@ cp infra/.env-example infra/.env
 
 3. **Start all services:**
 ```bash
-docker compose -f infra/docker-compose.local.yml up -d
+make docker-up
 ```
 
 This starts: API (port 8080), PostgreSQL, Redis, Nginx (port 80).
@@ -171,9 +178,13 @@ Migrations run automatically on startup.
 
 4. **Verify:**
 ```bash
-curl http://localhost/health
+curl http://localhost:8080/health
 # {"status":"ok"}
 ```
+
+5. **Browse API docs:**
+
+Open [http://localhost:8080/swagger/](http://localhost:8080/swagger/) for interactive Swagger UI.
 
 ### Option 2: Local Development
 
@@ -277,9 +288,34 @@ make migrate-up             # Apply migrations
 make migrate-down           # Rollback last migration
 make migrate-create name=x  # Create new migration
 
+# Swagger
+make swagger                # Regenerate API docs
+
 # Docker
-make docker-up              # Start PostgreSQL + Redis
+make docker-build           # Build Docker image
+make docker-up              # Build & start all services
+make docker-down            # Stop all services
+make docker-restart         # Restart all services
+make docker-logs            # Tail container logs
+make docker-ps              # Show running containers
+make docker-clean           # Stop & remove volumes (fresh start)
 ```
+
+## Swagger / API Docs
+
+Interactive API documentation is available at `/swagger/` when the server is running.
+
+```bash
+# Generate/regenerate docs after changing annotations
+make swagger
+
+# Access docs
+open http://localhost:8080/swagger/
+```
+
+Swagger annotations live in the handler files (`internal/api/handlers/*.go`). After modifying annotations, run `make swagger` to regenerate, then rebuild the Docker image.
+
+To authenticate in Swagger UI, click **Authorize** and paste your JWT token directly (no `Bearer` prefix needed).
 
 ## API Endpoints
 
@@ -446,5 +482,7 @@ Built with:
 - [go-redis](https://github.com/redis/go-redis) — Redis client
 - [golang-jwt](https://github.com/golang-jwt/jwt) — JWT tokens
 - [Viper](https://github.com/spf13/viper) — Configuration
+- [swaggo/swag](https://github.com/swaggo/swag) — Swagger doc generation
+- [gofiber/swagger](https://github.com/gofiber/swagger) — Swagger UI middleware
 - [testify](https://github.com/stretchr/testify) — Testing
 - [validator](https://github.com/go-playground/validator) — Input validation

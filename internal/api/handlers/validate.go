@@ -1,9 +1,10 @@
 package handlers
 
 import (
+	apierrors "go-microservice/internal/errors"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	apierrors "go-microservice/internal/errors"
 )
 
 var validate = validator.New()
@@ -20,7 +21,6 @@ func validateBody(c *fiber.Ctx, out interface{}) error {
 
 func formatValidationError(err error) string {
 	if ve, ok := err.(validator.ValidationErrors); ok {
-		// Return first validation error in a clean format.
 		fe := ve[0]
 		switch fe.Tag() {
 		case "required":

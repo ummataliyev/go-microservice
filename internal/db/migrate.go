@@ -11,11 +11,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
-//go:embed migrations/*.sql
 var migrationsFS embed.FS
 
-// RunMigrations applies all pending SQL migrations from the embedded
-// filesystem. It treats migrate.ErrNoChange as a no-op rather than an error.
 func RunMigrations(dbURL string, log zerolog.Logger) error {
 	src, err := iofs.New(migrationsFS, "migrations")
 	if err != nil {

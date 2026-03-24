@@ -1,19 +1,25 @@
-version: "3.9"
+name: go-microservice
 
 services:
   api:
     build:
       context: ../
       dockerfile: infra/Dockerfile
+    image: go-microservice:latest
     ports:
       - "8080:8080"
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      POSTGRES_DSN: postgres://devuser:devpassword@postgres:5432/app_dev?sslmode=disable
+      REDIS_HOST: redis
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 5

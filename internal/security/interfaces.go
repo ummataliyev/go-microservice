@@ -4,7 +4,7 @@ import "github.com/golang-jwt/jwt/v5"
 
 type Hasher interface {
 	Hash(password string) (string, error)
-	Verify(password, hash string) error // nil = match, non-nil = mismatch or failure
+	Verify(password, hash string) error
 }
 
 type TokenService interface {

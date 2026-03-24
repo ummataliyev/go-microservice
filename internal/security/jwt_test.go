@@ -4,10 +4,11 @@ import (
 	"testing"
 	"time"
 
+	"go-microservice/internal/config"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go-microservice/internal/config"
 )
 
 func newTestJWTService() *JWTService {

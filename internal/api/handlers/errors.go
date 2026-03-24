@@ -3,11 +3,11 @@ package handlers
 import (
 	"errors"
 
-	"github.com/gofiber/fiber/v2"
 	svcerrors "go-microservice/internal/errors"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-// handleServiceError is the shared error mapper used by all handlers.
 func handleServiceError(c *fiber.Ctx, err error) error {
 	var apiErr *svcerrors.APIError
 

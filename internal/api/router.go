@@ -3,16 +3,17 @@ package api
 import (
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog"
 	"go-microservice/internal/api/handlers"
 	"go-microservice/internal/api/middleware"
 	"go-microservice/internal/config"
 	"go-microservice/internal/security"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
+	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog"
 )
 
-// SetupRouter registers all middleware and routes on the given Fiber app.
 func SetupRouter(
 	app *fiber.App,
 	healthHandler *handlers.HealthHandler,
@@ -23,12 +24,10 @@ func SetupRouter(
 	redisClient *redis.Client,
 	log zerolog.Logger,
 ) {
-	// Global middleware (order matters).
 	app.Use(middleware.RequestID())
 	app.Use(middleware.Timing(int64(cfg.Logging.SlowRequestThresholdMS)))
 	app.Use(middleware.SecurityHeaders())
 
-	// Trusted hosts.
 	var trustedHosts []string
 	if cfg.Server.TrustedHosts != "" && cfg.Server.TrustedHosts != "*" {
 		trustedHosts = strings.Split(cfg.Server.TrustedHosts, ",")
@@ -37,24 +36,21 @@ func SetupRouter(
 
 	app.Use(middleware.CORS(cfg.CORS))
 
-	// Rate limiter.
-	rl := middleware.NewRateLimiter(redisClient, cfg.RateLimit)
-	app.Use(rl.Middleware())
-
-	// Health / info routes (no auth required).
 	app.Get("/", healthHandler.Root)
 	app.Get("/health", healthHandler.Health)
 	app.Get("/live", healthHandler.Live)
 	app.Get("/ready", healthHandler.Ready)
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// Auth routes.
+	rl := middleware.NewRateLimiter(redisClient, cfg.RateLimit)
+	app.Use(rl.Middleware())
+
 	auth := app.Group("/api/v1/auth")
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
 	auth.Post("/refresh", authHandler.Refresh)
 	auth.Get("/me", middleware.AuthMiddleware(tokenSvc), authHandler.Me)
 
-	// User CRUD routes (all require auth).
 	users := app.Group("/api/v1/users", middleware.AuthMiddleware(tokenSvc))
 	users.Get("/", userHandler.List)
 	users.Get("/:id", userHandler.Get)

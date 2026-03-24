@@ -3,13 +3,13 @@ package handlers
 import (
 	"context"
 
-	"github.com/gofiber/fiber/v2"
 	"go-microservice/internal/dto"
 	svcerrors "go-microservice/internal/errors"
 	"go-microservice/internal/security"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-// AuthServicer defines the interface for the auth service, consumed by the handler.
 type AuthServicer interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*dto.TokenResponse, error)
 	Login(ctx context.Context, req dto.LoginRequest, clientIP string) (*dto.TokenResponse, error)
@@ -17,17 +17,14 @@ type AuthServicer interface {
 	GetCurrentUser(ctx context.Context, userID uint) (*dto.MeResponse, error)
 }
 
-// AuthHandler handles authentication HTTP requests.
 type AuthHandler struct {
 	svc AuthServicer
 }
 
-// NewAuth creates a new AuthHandler.
 func NewAuth(svc AuthServicer) *AuthHandler {
 	return &AuthHandler{svc: svc}
 }
 
-// Register handles user registration.
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req dto.RegisterRequest
 	if err := validateBody(c, &req); err != nil {
@@ -42,7 +39,6 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(result)
 }
 
-// Login handles user login.
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req dto.LoginRequest
 	if err := validateBody(c, &req); err != nil {
@@ -57,7 +53,6 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// Refresh handles token refresh.
 func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 	var req dto.RefreshRequest
 	if err := validateBody(c, &req); err != nil {
@@ -72,7 +67,6 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// Me returns the current authenticated user's profile.
 func (h *AuthHandler) Me(c *fiber.Ctx) error {
 	claims, ok := c.Locals("claims").(*security.Claims)
 	if !ok || claims == nil {

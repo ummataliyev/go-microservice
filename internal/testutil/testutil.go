@@ -7,17 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"go-microservice/internal/models"
+
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-// SetupTestDB connects to a test postgres database using the POSTGRES_DSN env var
-// (default: host=localhost port=5432 user=test password=test dbname=test_db sslmode=disable),
-// auto-migrates the User model, and returns the *gorm.DB handle.
-// The test is skipped if the connection fails.
 func SetupTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
 
@@ -33,7 +30,6 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		t.Skipf("skipping integration test: unable to connect to postgres: %v", err)
 	}
 
-	// Verify the connection is alive.
 	sqlDB, err := db.DB()
 	if err != nil {
 		t.Skipf("skipping integration test: unable to get underlying sql.DB: %v", err)
@@ -42,7 +38,6 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		t.Skipf("skipping integration test: postgres ping failed: %v", err)
 	}
 
-	// Auto-migrate the User model.
 	if err := db.AutoMigrate(&models.User{}); err != nil {
 		t.Fatalf("auto-migrate failed: %v", err)
 	}
@@ -50,7 +45,6 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// CleanupTestDB truncates the users table so each test starts with a clean slate.
 func CleanupTestDB(t *testing.T, db *gorm.DB) {
 	t.Helper()
 	if err := db.Exec("TRUNCATE TABLE users RESTART IDENTITY CASCADE").Error; err != nil {
@@ -58,8 +52,6 @@ func CleanupTestDB(t *testing.T, db *gorm.DB) {
 	}
 }
 
-// SetupTestRedis connects to a test redis instance using REDIS_HOST / REDIS_PORT env vars
-// (defaults: localhost / 6379). The test is skipped if the connection fails.
 func SetupTestRedis(t *testing.T) *redis.Client {
 	t.Helper()
 

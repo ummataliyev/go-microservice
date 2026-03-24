@@ -10,17 +10,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"go-microservice/internal/api/handlers"
 	"go-microservice/internal/api/middleware"
 	"go-microservice/internal/dto"
 	svcerrors "go-microservice/internal/errors"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
-// mockUserService is a testify mock for UserServicer.
 type mockUserService struct {
 	mock.Mock
 }

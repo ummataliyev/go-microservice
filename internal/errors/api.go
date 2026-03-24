@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-// APIError represents a structured API error with an HTTP status code.
 type APIError struct {
 	Type       string `json:"type"`
 	Message    string `json:"message"`
@@ -13,24 +12,20 @@ type APIError struct {
 	RequestID  string `json:"-"`
 }
 
-// Error implements the error interface.
 func (e *APIError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Type, e.Message)
 }
 
-// ErrorResponse is the JSON envelope returned to clients.
 type ErrorResponse struct {
 	Error ErrorBody `json:"error"`
 }
 
-// ErrorBody contains the user-facing error details.
 type ErrorBody struct {
 	Type      string `json:"type"`
 	Message   string `json:"message"`
 	RequestID string `json:"request_id,omitempty"`
 }
 
-// ToResponse converts an APIError into an ErrorResponse for serialization.
 func (e *APIError) ToResponse() ErrorResponse {
 	return ErrorResponse{
 		Error: ErrorBody{
@@ -41,7 +36,6 @@ func (e *APIError) ToResponse() ErrorResponse {
 	}
 }
 
-// NewUnauthorized returns a 401 APIError.
 func NewUnauthorized(message string) *APIError {
 	return &APIError{
 		Type:       "UNAUTHORIZED",
@@ -50,7 +44,6 @@ func NewUnauthorized(message string) *APIError {
 	}
 }
 
-// NewNotFound returns a 404 APIError.
 func NewNotFound(message string) *APIError {
 	return &APIError{
 		Type:       "NOT_FOUND",
@@ -59,7 +52,6 @@ func NewNotFound(message string) *APIError {
 	}
 }
 
-// NewBadRequest returns a 400 APIError.
 func NewBadRequest(message string) *APIError {
 	return &APIError{
 		Type:       "BAD_REQUEST",
@@ -68,7 +60,6 @@ func NewBadRequest(message string) *APIError {
 	}
 }
 
-// NewConflict returns a 409 APIError.
 func NewConflict(message string) *APIError {
 	return &APIError{
 		Type:       "CONFLICT",
@@ -77,7 +68,6 @@ func NewConflict(message string) *APIError {
 	}
 }
 
-// NewTooManyRequests returns a 429 APIError with a Retry-After hint.
 func NewTooManyRequests(retryAfter string) *APIError {
 	return &APIError{
 		Type:       "TOO_MANY_REQUESTS",
@@ -86,7 +76,6 @@ func NewTooManyRequests(retryAfter string) *APIError {
 	}
 }
 
-// NewInternal returns a 500 APIError.
 func NewInternal(message string) *APIError {
 	return &APIError{
 		Type:       "INTERNAL_SERVER_ERROR",

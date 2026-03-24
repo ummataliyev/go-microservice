@@ -11,18 +11,15 @@ import (
 	"go-microservice/internal/security"
 )
 
-// UserService handles business logic for user operations.
 type UserService struct {
 	repo   repository.UserRepository
 	hasher security.Hasher
 }
 
-// NewUsers creates a new UserService.
 func NewUsers(repo repository.UserRepository, hasher security.Hasher) *UserService {
 	return &UserService{repo: repo, hasher: hasher}
 }
 
-// GetByID fetches a user by ID and returns a UserResponse DTO.
 func (s *UserService) GetByID(ctx context.Context, id uint) (*dto.UserResponse, error) {
 	user, err := s.repo.GetByID(ctx, id)
 	if err != nil {
@@ -36,7 +33,6 @@ func (s *UserService) GetByID(ctx context.Context, id uint) (*dto.UserResponse, 
 	return &resp, nil
 }
 
-// List returns a paginated list of users.
 func (s *UserService) List(ctx context.Context, page, perPage int) (*dto.PaginatedResponse[dto.UserResponse], error) {
 	pag := dto.NewPaginationRequest(page, perPage)
 
@@ -73,7 +69,6 @@ func (s *UserService) List(ctx context.Context, page, perPage int) (*dto.Paginat
 	}, nil
 }
 
-// Create hashes the password, creates the user, and returns a UserResponse DTO.
 func (s *UserService) Create(ctx context.Context, req dto.CreateUserRequest) (*dto.UserResponse, error) {
 	hashed, err := s.hasher.Hash(req.Password)
 	if err != nil {
@@ -96,7 +91,6 @@ func (s *UserService) Create(ctx context.Context, req dto.CreateUserRequest) (*d
 	return &resp, nil
 }
 
-// Update updates an existing user's fields and returns the updated UserResponse DTO.
 func (s *UserService) Update(ctx context.Context, id uint, req dto.UpdateUserRequest) (*dto.UserResponse, error) {
 	user, err := s.repo.GetByID(ctx, id)
 	if err != nil {
@@ -126,12 +120,10 @@ func (s *UserService) Update(ctx context.Context, id uint, req dto.UpdateUserReq
 	return &resp, nil
 }
 
-// Delete removes a user by ID.
 func (s *UserService) Delete(ctx context.Context, id uint) error {
 	return s.repo.Delete(ctx, id)
 }
 
-// userToResponse converts a User model to a UserResponse DTO.
 func userToResponse(user *models.User) dto.UserResponse {
 	return dto.UserResponse{
 		ID:        user.ID,

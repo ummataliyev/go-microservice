@@ -6,27 +6,24 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/redis/go-redis/v9"
 	"go-microservice/internal/config"
 	domainerrors "go-microservice/internal/errors"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/redis/go-redis/v9"
 )
 
-// counter is used for the in-memory rate-limiting fallback.
 type counter struct {
-	count    int
-	resetAt  time.Time
+	count   int
+	resetAt time.Time
 }
 
-// RateLimiter implements a per-IP rate limiter backed by Redis (preferred) or an
-// in-memory sync.Map fallback when Redis is unavailable.
 type RateLimiter struct {
 	redis    *redis.Client
 	cfg      config.RateLimitConfig
 	counters sync.Map
 }
 
-// NewRateLimiter creates a new RateLimiter instance.
 func NewRateLimiter(redisClient *redis.Client, cfg config.RateLimitConfig) *RateLimiter {
 	return &RateLimiter{
 		redis: redisClient,
@@ -34,7 +31,6 @@ func NewRateLimiter(redisClient *redis.Client, cfg config.RateLimitConfig) *Rate
 	}
 }
 
-// Middleware returns a Fiber handler that enforces rate limits.
 func (rl *RateLimiter) Middleware() fiber.Handler {
 	if !rl.cfg.Enabled {
 		return func(c *fiber.Ctx) error {
@@ -53,7 +49,7 @@ func (rl *RateLimiter) Middleware() fiber.Handler {
 		case fiber.MethodGet:
 			limit = rl.cfg.LimitGet
 			window = rl.cfg.TimeGet
-		default: // POST, PUT, PATCH, DELETE, etc.
+		default:
 			limit = rl.cfg.LimitPPD
 			window = rl.cfg.TimePPD
 		}
@@ -73,7 +69,6 @@ func (rl *RateLimiter) Middleware() fiber.Handler {
 			count, err = rl.incrMemory(key, window)
 		}
 		if err != nil {
-			// On error, allow the request through rather than blocking.
 			return c.Next()
 		}
 

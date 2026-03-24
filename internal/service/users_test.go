@@ -14,8 +14,6 @@ import (
 	"go-microservice/internal/models"
 )
 
-// --- Mocks ---
-
 type MockUserRepository struct {
 	mock.Mock
 }
@@ -82,8 +80,6 @@ func (m *MockHasher) Verify(password, hash string) error {
 	args := m.Called(password, hash)
 	return args.Error(0)
 }
-
-// --- Tests ---
 
 func sampleUser() *models.User {
 	return &models.User{

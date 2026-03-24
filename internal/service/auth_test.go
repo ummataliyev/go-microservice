@@ -15,8 +15,6 @@ import (
 	"go-microservice/internal/security"
 )
 
-// --- Mock TokenService ---
-
 type MockTokenService struct {
 	mock.Mock
 }
@@ -39,8 +37,6 @@ func (m *MockTokenService) ValidateToken(tokenString string) (*security.Claims, 
 	return args.Get(0).(*security.Claims), args.Error(1)
 }
 
-// --- Helpers ---
-
 func defaultAuthCfg() config.AuthConfig {
 	return config.AuthConfig{
 		MaxAttempts:    5,
@@ -56,8 +52,6 @@ func newAuthService() (*AuthService, *MockUserRepository, *MockHasher, *MockToke
 	svc := NewAuth(repo, tokenSvc, hasher, nil, defaultAuthCfg())
 	return svc, repo, hasher, tokenSvc
 }
-
-// --- Register Tests ---
 
 func TestRegister_Success(t *testing.T) {
 	svc, repo, hasher, tokenSvc := newAuthService()
@@ -91,8 +85,6 @@ func TestRegister_DuplicateEmail(t *testing.T) {
 	assert.ErrorIs(t, err, svcerrors.ErrUserAlreadyExists)
 	repo.AssertExpectations(t)
 }
-
-// --- Login Tests ---
 
 func TestLogin_Success(t *testing.T) {
 	svc, repo, hasher, tokenSvc := newAuthService()
@@ -139,8 +131,6 @@ func TestLogin_UserNotFound(t *testing.T) {
 	assert.ErrorIs(t, err, svcerrors.ErrInvalidCredentials)
 	repo.AssertExpectations(t)
 }
-
-// --- Refresh Tests ---
 
 func TestRefresh_Success(t *testing.T) {
 	svc, _, _, tokenSvc := newAuthService()
@@ -192,8 +182,6 @@ func TestRefresh_WrongTokenType(t *testing.T) {
 	assert.ErrorIs(t, err, svcerrors.ErrInvalidTokenType)
 	tokenSvc.AssertExpectations(t)
 }
-
-// --- GetCurrentUser Tests ---
 
 func TestGetCurrentUser(t *testing.T) {
 	svc, repo, _, _ := newAuthService()

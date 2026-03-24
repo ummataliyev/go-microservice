@@ -4,12 +4,12 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/gofiber/fiber/v2"
 	"go-microservice/internal/dto"
 	svcerrors "go-microservice/internal/errors"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-// UserServicer defines the interface for the user service, consumed by the handler.
 type UserServicer interface {
 	GetByID(ctx context.Context, id uint) (*dto.UserResponse, error)
 	List(ctx context.Context, page, perPage int) (*dto.PaginatedResponse[dto.UserResponse], error)
@@ -18,17 +18,14 @@ type UserServicer interface {
 	Delete(ctx context.Context, id uint) error
 }
 
-// UserHandler handles user CRUD HTTP requests.
 type UserHandler struct {
 	svc UserServicer
 }
 
-// NewUsers creates a new UserHandler.
 func NewUsers(svc UserServicer) *UserHandler {
 	return &UserHandler{svc: svc}
 }
 
-// List returns a paginated list of users.
 func (h *UserHandler) List(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	perPage := c.QueryInt("per_page", 20)
@@ -41,11 +38,10 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// Get returns a single user by ID.
 func (h *UserHandler) Get(c *fiber.Ctx) error {
 	id, err := parseIDParam(c)
 	if err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid user id")
+		apiErr := svcerrors.NewBadRequest("invalid user_id")
 		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
 	}
 
@@ -57,7 +53,6 @@ func (h *UserHandler) Get(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// Create creates a new user.
 func (h *UserHandler) Create(c *fiber.Ctx) error {
 	var req dto.CreateUserRequest
 	if err := validateBody(c, &req); err != nil {
@@ -72,11 +67,10 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(result)
 }
 
-// Update updates an existing user.
 func (h *UserHandler) Update(c *fiber.Ctx) error {
 	id, err := parseIDParam(c)
 	if err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid user id")
+		apiErr := svcerrors.NewBadRequest("invalid user_id")
 		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
 	}
 
@@ -93,11 +87,10 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// Delete removes a user by ID.
 func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	id, err := parseIDParam(c)
 	if err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid user id")
+		apiErr := svcerrors.NewBadRequest("invalid user_id")
 		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
 	}
 
@@ -111,7 +104,6 @@ func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	})
 }
 
-// parseIDParam extracts and validates the :id route parameter.
 func parseIDParam(c *fiber.Ctx) (uint, error) {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)

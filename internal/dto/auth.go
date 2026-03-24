@@ -2,31 +2,26 @@ package dto
 
 import "time"
 
-// RegisterRequest is the payload for user registration.
 type RegisterRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
+	Email    string `json:"email" validate:"required,email" example:"user@example.com"`
+	Password string `json:"password" validate:"required,min=6" example:"secret123"`
 }
 
-// LoginRequest is the payload for user login.
 type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
+	Email    string `json:"email" validate:"required,email" example:"user@example.com"`
+	Password string `json:"password" validate:"required" example:"secret123"`
 }
 
-// RefreshRequest is the payload for token refresh.
 type RefreshRequest struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required" example:"eyJhbGciOiJIUzI1NiIs..."`
 }
 
-// TokenResponse is returned after successful authentication.
 type TokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
 }
 
-// NewTokenResponse creates a TokenResponse with the token type set to "bearer".
 func NewTokenResponse(accessToken, refreshToken string) TokenResponse {
 	return TokenResponse{
 		AccessToken:  accessToken,
@@ -35,7 +30,6 @@ func NewTokenResponse(accessToken, refreshToken string) TokenResponse {
 	}
 }
 
-// MeResponse is the authenticated user profile returned by auth endpoints.
 type MeResponse struct {
 	ID        uint      `json:"id"`
 	Email     string    `json:"email"`

@@ -7,7 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gofiber/fiber/v2"
 	"go-microservice/internal/api"
 	"go-microservice/internal/api/handlers"
 	"go-microservice/internal/api/middleware"
@@ -17,36 +16,34 @@ import (
 	"go-microservice/internal/repository"
 	"go-microservice/internal/security"
 	"go-microservice/internal/service"
+
+	_ "go-microservice/docs"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	// 1. Load configuration.
 	cfg, err := config.Load()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to load config: %v\n", err)
 		os.Exit(1)
 	}
 
-	// 2. Initialize logger.
 	log := logger.New(cfg.Logging, cfg.Server.Environment)
 
 	ctx := context.Background()
 
-	// 3. Connect to PostgreSQL.
 	gormDB, err := db.NewPostgres(ctx, cfg.Postgres, log)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
 
-	// 4. Run migrations.
 	if err := db.RunMigrations(cfg.Postgres.DSN, log); err != nil {
 		log.Fatal().Err(err).Msg("failed to run migrations")
 	}
 
-	// 5. Connect Redis (graceful — returns nil on failure).
 	redisClient := db.NewRedis(ctx, cfg.Redis, log)
 
-	// 6. Wire dependencies.
 	repo := repository.NewGORMUser(gormDB)
 
 	hasher := security.NewBcryptHasher()
@@ -58,21 +55,17 @@ func main() {
 	userHandler := handlers.NewUsers(userSvc)
 	healthHandler := handlers.NewHealth(cfg.Server.AppName, cfg.Server.AppVersion)
 
-	// 7. Create Fiber app with custom error handler.
 	app := fiber.New(fiber.Config{
 		ErrorHandler: middleware.ErrorHandler,
 	})
 
-	// 8. Setup router.
 	api.SetupRouter(app, healthHandler, authHandler, userHandler, jwtSvc, *cfg, redisClient, log)
 
-	// 9. Graceful shutdown.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 
-	// 10. Start server in a goroutine.
 	go func() {
 		log.Info().Str("addr", addr).Msg("starting server")
 		if err := app.Listen(addr); err != nil {
@@ -80,7 +73,6 @@ func main() {
 		}
 	}()
 
-	// Block until shutdown signal.
 	sig := <-quit
 	log.Info().Str("signal", sig.String()).Msg("received shutdown signal")
 
@@ -88,14 +80,12 @@ func main() {
 		log.Error().Err(err).Msg("error during server shutdown")
 	}
 
-	// Close Redis if connected.
 	if redisClient != nil {
 		if err := redisClient.Close(); err != nil {
 			log.Error().Err(err).Msg("error closing redis connection")
 		}
 	}
 
-	// Close database.
 	sqlDB, err := gormDB.DB()
 	if err == nil {
 		if err := sqlDB.Close(); err != nil {

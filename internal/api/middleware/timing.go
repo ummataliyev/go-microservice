@@ -8,9 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Timing is a Fiber middleware that records request processing duration.
-// It sets the X-Process-Time response header (in milliseconds) and logs a
-// warning when the duration exceeds slowThresholdMS.
 func Timing(slowThresholdMS int64) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		start := time.Now()

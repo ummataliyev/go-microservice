@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/rs/zerolog"
 	"go-microservice/internal/config"
+
+	"github.com/rs/zerolog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// NewPostgres opens a GORM connection to PostgreSQL, configures the pool, and
-// pings the database to verify connectivity.
 func NewPostgres(ctx context.Context, cfg config.PostgresConfig, log zerolog.Logger) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{})
 	if err != nil {

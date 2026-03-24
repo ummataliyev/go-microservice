@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"go-microservice/internal/config"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
-	"go-microservice/internal/config"
 )
 
-// NewRedis creates a Redis client, pings the server, and returns the client.
-// If the ping fails the function logs a warning and returns nil so the
-// application can degrade gracefully without a cache.
 func NewRedis(ctx context.Context, cfg config.RedisConfig, log zerolog.Logger) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:        fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),

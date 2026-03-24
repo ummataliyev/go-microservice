@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"go-microservice/internal/config"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type JWTService struct {

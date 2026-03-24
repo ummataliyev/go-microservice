@@ -5,8 +5,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// RequestID is a Fiber middleware that ensures every request has a unique X-Request-ID.
-// If the incoming request already contains the header, it is reused; otherwise a new UUID is generated.
 func RequestID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Get("X-Request-ID")

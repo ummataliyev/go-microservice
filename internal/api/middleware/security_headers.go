@@ -1,12 +1,18 @@
 package middleware
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"strings"
 
-// SecurityHeaders is a Fiber middleware that applies common security headers
-// to every response and removes server-identifying headers.
+	"github.com/gofiber/fiber/v2"
+)
+
 func SecurityHeaders() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		err := c.Next()
+
+		if strings.HasPrefix(c.OriginalURL(), "/swagger") {
+			return err
+		}
 
 		c.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		c.Set("X-Frame-Options", "DENY")
@@ -15,7 +21,6 @@ func SecurityHeaders() fiber.Handler {
 		c.Set("X-XSS-Protection", "1; mode=block")
 		c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 
-		// Remove server-identifying headers.
 		c.Response().Header.Del("Server")
 		c.Response().Header.Del("X-Powered-By")
 

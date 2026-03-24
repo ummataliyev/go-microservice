@@ -7,10 +7,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go-microservice/internal/api/handlers"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go-microservice/internal/api/handlers"
 )
 
 func TestHealthEndpoint(t *testing.T) {

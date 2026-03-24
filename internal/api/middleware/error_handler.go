@@ -3,29 +3,25 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
 	domainerrors "go-microservice/internal/errors"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-// ErrorHandler is a Fiber custom error handler that converts errors into structured
-// JSON error responses.
 func ErrorHandler(c *fiber.Ctx, err error) error {
 	requestID, _ := c.Locals("request_id").(string)
 
-	// Check for domain APIError.
 	if apiErr, ok := err.(*domainerrors.APIError); ok {
 		apiErr.RequestID = requestID
 		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
 	}
 
-	// Check for Fiber error.
 	if fiberErr, ok := err.(*fiber.Error); ok {
 		apiErr := mapFiberError(fiberErr)
 		apiErr.RequestID = requestID
 		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
 	}
 
-	// Default: 500 Internal Server Error.
 	apiErr := &domainerrors.APIError{
 		Type:       "INTERNAL_ERROR",
 		Message:    "internal server error",

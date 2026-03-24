@@ -5,11 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
 	"go-microservice/internal/config"
+
+	"github.com/rs/zerolog"
 )
 
-// New creates a configured zerolog.Logger based on the logging config and environment.
 func New(cfg config.LoggingConfig, env string) zerolog.Logger {
 	level := parseLevel(cfg.Level)
 	zerolog.SetGlobalLevel(level)
@@ -24,7 +24,6 @@ func New(cfg config.LoggingConfig, env string) zerolog.Logger {
 	return zerolog.New(os.Stdout).With().Timestamp().Logger()
 }
 
-// WithRequestID returns a sub-logger with the request_id field attached.
 func WithRequestID(logger zerolog.Logger, requestID string) zerolog.Logger {
 	return logger.With().Str("request_id", requestID).Logger()
 }

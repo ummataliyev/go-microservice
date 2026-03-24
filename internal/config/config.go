@@ -64,8 +64,8 @@ type PaginationConfig struct {
 }
 
 type LoggingConfig struct {
-	Level                   string `mapstructure:"level"`
-	SlowRequestThresholdMS  int    `mapstructure:"slow_request_threshold_ms"`
+	Level                  string `mapstructure:"level"`
+	SlowRequestThresholdMS int    `mapstructure:"slow_request_threshold_ms"`
 }
 
 type Config struct {
@@ -93,6 +93,7 @@ func Load() (*Config, error) {
 	v.SetDefault("server.app_version", "0.1.0")
 	v.SetDefault("server.api_prefix", "/api/v1")
 
+	v.SetDefault("jwt.secret_key", "")
 	v.SetDefault("jwt.algorithm", "HS256")
 	v.SetDefault("jwt.access_token_expiry", 15*time.Minute)
 	v.SetDefault("jwt.refresh_token_expiry", 7*24*time.Hour)
@@ -101,10 +102,12 @@ func Load() (*Config, error) {
 	v.SetDefault("auth.window_seconds", 900)
 	v.SetDefault("auth.lockout_seconds", 1800)
 
+	v.SetDefault("postgres.dsn", "")
 	v.SetDefault("postgres.pool_size", 10)
 	v.SetDefault("postgres.pool_max_idle", 5)
 	v.SetDefault("postgres.pool_max_lifetime", 30*time.Minute)
 
+	v.SetDefault("redis.password", "")
 	v.SetDefault("redis.host", "localhost")
 	v.SetDefault("redis.port", 6379)
 	v.SetDefault("redis.db", 0)
@@ -123,14 +126,12 @@ func Load() (*Config, error) {
 	v.SetDefault("logging.level", "info")
 	v.SetDefault("logging.slow_request_threshold_ms", 500)
 
-	// Read .env file
 	v.SetConfigName(".env")
 	v.SetConfigType("env")
 	v.AddConfigPath("infra")
 	v.AddConfigPath(".")
-	_ = v.ReadInConfig() // ignore error if .env doesn't exist
+	_ = v.ReadInConfig()
 
-	// Environment variables override
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 
@@ -149,12 +150,10 @@ func Load() (*Config, error) {
 func (c *Config) Validate() error {
 	env := strings.ToLower(c.Server.Environment)
 
-	// Reject wildcard trusted_hosts in production
 	if env == "production" && strings.TrimSpace(c.Server.TrustedHosts) == "*" {
 		return fmt.Errorf("wildcard trusted_hosts is not allowed in production")
 	}
 
-	// Require JWT secret in non-development environments
 	if env != "development" && c.JWT.SecretKey == "" {
 		return fmt.Errorf("jwt secret_key is required in %s environment", env)
 	}

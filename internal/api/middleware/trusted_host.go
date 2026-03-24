@@ -4,12 +4,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
 	domainerrors "go-microservice/internal/errors"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-// TrustedHost is a Fiber middleware that restricts requests to a set of allowed hosts.
-// If trustedHosts is empty, all hosts are permitted (development mode).
 func TrustedHost(trustedHosts []string) fiber.Handler {
 	allowed := make(map[string]struct{}, len(trustedHosts))
 	for _, h := range trustedHosts {
@@ -22,7 +21,6 @@ func TrustedHost(trustedHosts []string) fiber.Handler {
 		}
 
 		host := c.Hostname()
-		// Strip port if present.
 		if idx := strings.LastIndex(host, ":"); idx != -1 {
 			host = host[:idx]
 		}

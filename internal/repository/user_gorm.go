@@ -8,16 +8,14 @@ import (
 
 	repoerrors "go-microservice/internal/errors"
 	"go-microservice/internal/models"
+
 	"gorm.io/gorm"
 )
 
-// GORMUserRepository implements UserRepository using GORM.
-// Works with any GORM-supported SQL database (currently PostgreSQL).
 type GORMUserRepository struct {
 	db *gorm.DB
 }
 
-// NewGORMUser returns a new GORMUserRepository.
 func NewGORMUser(db *gorm.DB) *GORMUserRepository {
 	return &GORMUserRepository{db: db}
 }
@@ -91,7 +89,6 @@ func (r *GORMUserRepository) Count(ctx context.Context) (int64, error) {
 	return count, nil
 }
 
-// isDuplicateKeyError checks whether the error is a duplicate-key / unique-constraint violation.
 func isDuplicateKeyError(err error) bool {
 	if err == nil {
 		return false

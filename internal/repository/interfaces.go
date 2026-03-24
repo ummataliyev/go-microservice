@@ -6,7 +6,6 @@ import (
 	"go-microservice/internal/models"
 )
 
-// UserRepository defines the contract for user persistence operations.
 type UserRepository interface {
 	GetByID(ctx context.Context, id uint) (*models.User, error)
 	GetByEmail(ctx context.Context, email string) (*models.User, error)

@@ -16,7 +16,6 @@ import (
 	"go-microservice/internal/security"
 )
 
-// AuthService handles authentication business logic.
 type AuthService struct {
 	repo     repository.UserRepository
 	tokenSvc security.TokenService
@@ -25,7 +24,6 @@ type AuthService struct {
 	cfg      config.AuthConfig
 }
 
-// NewAuth creates a new AuthService.
 func NewAuth(
 	repo repository.UserRepository,
 	tokenSvc security.TokenService,
@@ -42,7 +40,6 @@ func NewAuth(
 	}
 }
 
-// Register creates a new user and returns access and refresh tokens.
 func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*dto.TokenResponse, error) {
 	// Check if email already exists.
 	existing, err := s.repo.GetByEmail(ctx, req.Email)
@@ -81,7 +78,6 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	return &resp, nil
 }
 
-// Login authenticates a user by email and password and returns tokens.
 func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest, clientIP string) (*dto.TokenResponse, error) {
 	if err := s.checkLoginLock(ctx, req.Email, clientIP); err != nil {
 		return nil, err
@@ -116,7 +112,6 @@ func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest, clientIP 
 	return &resp, nil
 }
 
-// Refresh validates a refresh token and returns a new access token.
 func (s *AuthService) Refresh(ctx context.Context, req dto.RefreshRequest) (*dto.TokenResponse, error) {
 	claims, err := s.tokenSvc.ValidateToken(req.RefreshToken)
 	if err != nil {
@@ -136,7 +131,6 @@ func (s *AuthService) Refresh(ctx context.Context, req dto.RefreshRequest) (*dto
 	return &resp, nil
 }
 
-// GetCurrentUser fetches the authenticated user's profile.
 func (s *AuthService) GetCurrentUser(ctx context.Context, userID uint) (*dto.MeResponse, error) {
 	user, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
@@ -154,8 +148,6 @@ func (s *AuthService) GetCurrentUser(ctx context.Context, userID uint) (*dto.MeR
 	}, nil
 }
 
-// checkLoginLock checks if the account or IP is locked out due to too many failed attempts.
-// Skips gracefully if redis is nil.
 func (s *AuthService) checkLoginLock(ctx context.Context, email, ip string) error {
 	if s.redis == nil {
 		return nil
@@ -164,7 +156,6 @@ func (s *AuthService) checkLoginLock(ctx context.Context, email, ip string) erro
 	key := fmt.Sprintf("login_attempts:%s:%s", email, ip)
 	val, err := s.redis.Get(ctx, key).Int()
 	if err != nil {
-		// Key doesn't exist or redis error — allow login.
 		return nil
 	}
 
@@ -175,8 +166,6 @@ func (s *AuthService) checkLoginLock(ctx context.Context, email, ip string) erro
 	return nil
 }
 
-// trackFailedAttempt increments the failed login counter in redis.
-// Skips gracefully if redis is nil.
 func (s *AuthService) trackFailedAttempt(ctx context.Context, email, ip string) {
 	if s.redis == nil {
 		return
@@ -187,8 +176,6 @@ func (s *AuthService) trackFailedAttempt(ctx context.Context, email, ip string) 
 	s.redis.Expire(ctx, key, time.Duration(s.cfg.WindowSeconds)*time.Second)
 }
 
-// clearFailedAttempts removes the failed login counter from redis.
-// Skips gracefully if redis is nil.
 func (s *AuthService) clearFailedAttempts(ctx context.Context, email, ip string) {
 	if s.redis == nil {
 		return
