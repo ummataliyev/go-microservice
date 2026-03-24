@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go-microservice/internal/api/handlers"
+	"go-microservice/internal/api/middleware"
 	"go-microservice/internal/dto"
 	svcerrors "go-microservice/internal/errors"
 )
@@ -81,7 +82,7 @@ func TestListUsers_Paginated(t *testing.T) {
 	}
 	mockSvc.On("List", mock.Anything, 1, 10).Return(paginatedResp, nil)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Get("/api/v1/users", h.List)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users?page=1&per_page=10", nil)
@@ -106,7 +107,7 @@ func TestGetUser_Found(t *testing.T) {
 	user := &dto.UserResponse{ID: 1, Email: "user@test.com", CreatedAt: now, UpdatedAt: now}
 	mockSvc.On("GetByID", mock.Anything, uint(1)).Return(user, nil)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Get("/api/v1/users/:id", h.Get)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users/1", nil)
@@ -129,7 +130,7 @@ func TestGetUser_NotFound(t *testing.T) {
 
 	mockSvc.On("GetByID", mock.Anything, uint(999)).Return(nil, svcerrors.ErrUserNotFound)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Get("/api/v1/users/:id", h.Get)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users/999", nil)
@@ -151,7 +152,7 @@ func TestCreateUser_Success(t *testing.T) {
 		Password: "pass123",
 	}).Return(user, nil)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Post("/api/v1/users", h.Create)
 
 	body, _ := json.Marshal(map[string]string{
@@ -180,7 +181,7 @@ func TestDeleteUser_Success(t *testing.T) {
 
 	mockSvc.On("Delete", mock.Anything, uint(1)).Return(nil)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Delete("/api/v1/users/:id", h.Delete)
 
 	req := httptest.NewRequest(http.MethodDelete, "/api/v1/users/1", nil)

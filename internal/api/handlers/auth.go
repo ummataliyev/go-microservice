@@ -30,14 +30,8 @@ func NewAuth(svc AuthServicer) *AuthHandler {
 // Register handles user registration.
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req dto.RegisterRequest
-	if err := c.BodyParser(&req); err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid request body")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
-	}
-
-	if req.Email == "" || req.Password == "" {
-		apiErr := svcerrors.NewBadRequest("email and password are required")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
+	if err := validateBody(c, &req); err != nil {
+		return err
 	}
 
 	result, err := h.svc.Register(c.Context(), req)
@@ -51,14 +45,8 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // Login handles user login.
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req dto.LoginRequest
-	if err := c.BodyParser(&req); err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid request body")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
-	}
-
-	if req.Email == "" || req.Password == "" {
-		apiErr := svcerrors.NewBadRequest("email and password are required")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
+	if err := validateBody(c, &req); err != nil {
+		return err
 	}
 
 	result, err := h.svc.Login(c.Context(), req, c.IP())
@@ -72,14 +60,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // Refresh handles token refresh.
 func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 	var req dto.RefreshRequest
-	if err := c.BodyParser(&req); err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid request body")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
-	}
-
-	if req.RefreshToken == "" {
-		apiErr := svcerrors.NewBadRequest("refresh_token is required")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
+	if err := validateBody(c, &req); err != nil {
+		return err
 	}
 
 	result, err := h.svc.Refresh(c.Context(), req)

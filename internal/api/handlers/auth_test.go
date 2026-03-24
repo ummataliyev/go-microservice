@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go-microservice/internal/api/handlers"
+	"go-microservice/internal/api/middleware"
 	"go-microservice/internal/dto"
 	svcerrors "go-microservice/internal/errors"
 )
@@ -69,7 +70,7 @@ func TestRegister_Success(t *testing.T) {
 		Password: "pass123",
 	}).Return(tokenResp, nil)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Post("/api/v1/auth/register", h.Register)
 
 	body, _ := json.Marshal(map[string]string{
@@ -97,7 +98,7 @@ func TestRegister_InvalidBody(t *testing.T) {
 	mockSvc := new(mockAuthService)
 	h := handlers.NewAuth(mockSvc)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Post("/api/v1/auth/register", h.Register)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/register", nil)
@@ -122,7 +123,7 @@ func TestLogin_Success(t *testing.T) {
 		Password: "pass123",
 	}, "0.0.0.0").Return(tokenResp, nil)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Post("/api/v1/auth/login", h.Login)
 
 	body, _ := json.Marshal(map[string]string{
@@ -154,7 +155,7 @@ func TestLogin_InvalidCredentials(t *testing.T) {
 		Password: "wrong",
 	}, "0.0.0.0").Return(nil, svcerrors.ErrInvalidCredentials)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: middleware.ErrorHandler})
 	app.Post("/api/v1/auth/login", h.Login)
 
 	body, _ := json.Marshal(map[string]string{

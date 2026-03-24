@@ -4,15 +4,15 @@ import "time"
 
 // CreateUserRequest is the payload for creating a new user.
 type CreateUserRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
 }
 
 // UpdateUserRequest is the payload for updating a user.
 // Pointer fields are optional — nil means "do not change".
 type UpdateUserRequest struct {
-	Email    *string `json:"email,omitempty"`
-	Password *string `json:"password,omitempty"`
+	Email    *string `json:"email,omitempty" validate:"omitempty,email"`
+	Password *string `json:"password,omitempty" validate:"omitempty,min=6"`
 }
 
 // UserResponse is the standard user representation returned by user endpoints.

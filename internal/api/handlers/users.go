@@ -60,14 +60,8 @@ func (h *UserHandler) Get(c *fiber.Ctx) error {
 // Create creates a new user.
 func (h *UserHandler) Create(c *fiber.Ctx) error {
 	var req dto.CreateUserRequest
-	if err := c.BodyParser(&req); err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid request body")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
-	}
-
-	if req.Email == "" || req.Password == "" {
-		apiErr := svcerrors.NewBadRequest("email and password are required")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
+	if err := validateBody(c, &req); err != nil {
+		return err
 	}
 
 	result, err := h.svc.Create(c.Context(), req)
@@ -87,9 +81,8 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 	}
 
 	var req dto.UpdateUserRequest
-	if err := c.BodyParser(&req); err != nil {
-		apiErr := svcerrors.NewBadRequest("invalid request body")
-		return c.Status(apiErr.StatusCode).JSON(apiErr.ToResponse())
+	if err := validateBody(c, &req); err != nil {
+		return err
 	}
 
 	result, err := h.svc.Update(c.Context(), id, req)
