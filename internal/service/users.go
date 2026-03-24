@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/thealish/go-microservice/internal/domain/dto"
-	repoerrors "github.com/thealish/go-microservice/internal/domain/errors"
-	"github.com/thealish/go-microservice/internal/domain/models"
-	"github.com/thealish/go-microservice/internal/repository"
-	"github.com/thealish/go-microservice/internal/security"
+	"go-microservice/internal/domain/dto"
+	repoerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/domain/models"
+	"go-microservice/internal/repository"
+	"go-microservice/internal/security"
 )
 
 // UserService handles business logic for user operations.

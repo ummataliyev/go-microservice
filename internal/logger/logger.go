@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/thealish/go-microservice/internal/config"
+	"go-microservice/internal/config"
 )
 
 // New creates a configured zerolog.Logger based on the logging config and environment.

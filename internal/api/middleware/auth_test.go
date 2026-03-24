@@ -10,8 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/thealish/go-microservice/internal/domain/errors"
-	"github.com/thealish/go-microservice/internal/security"
+	"go-microservice/internal/domain/errors"
+	"go-microservice/internal/security"
 )
 
 // mockTokenService is a test double for security.TokenService.

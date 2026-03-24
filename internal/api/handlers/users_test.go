@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/thealish/go-microservice/internal/api/handlers"
-	"github.com/thealish/go-microservice/internal/domain/dto"
-	svcerrors "github.com/thealish/go-microservice/internal/domain/errors"
+	"go-microservice/internal/api/handlers"
+	"go-microservice/internal/domain/dto"
+	svcerrors "go-microservice/internal/domain/errors"
 )
 
 // mockUserService is a testify mock for UserServicer.

@@ -10,8 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/thealish/go-microservice/internal/config"
-	domainerrors "github.com/thealish/go-microservice/internal/domain/errors"
+	"go-microservice/internal/config"
+	domainerrors "go-microservice/internal/domain/errors"
 )
 
 func TestRateLimiter_SkipsWhenDisabled(t *testing.T) {

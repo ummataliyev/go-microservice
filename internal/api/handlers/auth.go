@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/thealish/go-microservice/internal/domain/dto"
-	svcerrors "github.com/thealish/go-microservice/internal/domain/errors"
-	"github.com/thealish/go-microservice/internal/security"
+	"go-microservice/internal/domain/dto"
+	svcerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/security"
 )
 
 // AuthServicer defines the interface for the auth service, consumed by the handler.

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	repoerrors "github.com/thealish/go-microservice/internal/domain/errors"
-	"github.com/thealish/go-microservice/internal/domain/models"
+	repoerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/domain/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

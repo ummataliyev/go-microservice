@@ -6,7 +6,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
-	"github.com/thealish/go-microservice/internal/config"
+	"go-microservice/internal/config"
 )
 
 // NewRedis creates a Redis client, pings the server, and returns the client.

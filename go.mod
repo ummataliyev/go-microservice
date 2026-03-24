@@ -1,4 +1,4 @@
-module github.com/thealish/go-microservice
+module go-microservice
 
 go 1.25.5
 

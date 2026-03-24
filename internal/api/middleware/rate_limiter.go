@@ -8,8 +8,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/thealish/go-microservice/internal/config"
-	domainerrors "github.com/thealish/go-microservice/internal/domain/errors"
+	"go-microservice/internal/config"
+	domainerrors "go-microservice/internal/domain/errors"
 )
 
 // counter is used for the in-memory rate-limiting fallback.

@@ -6,10 +6,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
-	"github.com/thealish/go-microservice/internal/api/handlers"
-	"github.com/thealish/go-microservice/internal/api/middleware"
-	"github.com/thealish/go-microservice/internal/config"
-	"github.com/thealish/go-microservice/internal/security"
+	"go-microservice/internal/api/handlers"
+	"go-microservice/internal/api/middleware"
+	"go-microservice/internal/config"
+	"go-microservice/internal/security"
 )
 
 // SetupRouter registers all middleware and routes on the given Fiber app.

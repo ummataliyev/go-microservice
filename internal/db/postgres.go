@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog"
-	"github.com/thealish/go-microservice/internal/config"
+	"go-microservice/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

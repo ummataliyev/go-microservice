@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	domainerrors "github.com/thealish/go-microservice/internal/domain/errors"
-	"github.com/thealish/go-microservice/internal/security"
+	domainerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/security"
 )
 
 // AuthMiddleware returns a Fiber handler that validates Bearer tokens using the

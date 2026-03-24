@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	domainerrors "github.com/thealish/go-microservice/internal/domain/errors"
+	domainerrors "go-microservice/internal/domain/errors"
 )
 
 // ErrorHandler is a Fiber custom error handler that converts errors into structured

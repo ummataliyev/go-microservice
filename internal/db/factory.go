@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
-	"github.com/thealish/go-microservice/internal/config"
+	"go-microservice/internal/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 )
