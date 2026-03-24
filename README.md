@@ -2,22 +2,22 @@
 
 A production-ready Go microservice template with comprehensive features for building scalable and maintainable APIs.
 
-## Table of Contents
+## 📋 Table of Contents
 
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Database Migrations](#database-migrations)
-- [Development Commands](#development-commands)
-- [API Endpoints](#api-endpoints)
-- [Architecture](#architecture)
-- [Security](#security)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [Acknowledgments](#acknowledgments)
+- [Features](#-features)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Configuration](#️-configuration)
+- [Database Migrations](#️-database-migrations)
+- [Development Commands](#️-development-commands)
+- [API Endpoints](#-api-endpoints)
+- [Architecture](#️-architecture)
+- [Security](#-security)
+- [Testing](#-testing)
+- [Contributing](#-contributing)
+- [Acknowledgments](#-acknowledgments)
 
-## Features
+## ✨ Features
 
 ### Core
 - **Fiber Framework** - High-performance HTTP framework built on fasthttp
@@ -49,7 +49,7 @@ A production-ready Go microservice template with comprehensive features for buil
 - **Graceful Shutdown** - Signal handling with ordered resource cleanup
 - **Nginx** - Reverse proxy configuration
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 go-microservice/
@@ -145,7 +145,7 @@ go-microservice/
 └── go.sum
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -158,7 +158,7 @@ go-microservice/
 
 1. **Clone the repository:**
 ```bash
-git clone git@github.com:thealish/go-microservice.git
+git clone git@github.com:ummataliyev/go-microservice.git
 cd go-microservice
 ```
 
@@ -190,7 +190,7 @@ Open [http://localhost:8080/swagger/](http://localhost:8080/swagger/) for intera
 
 1. **Clone and configure:**
 ```bash
-git clone git@github.com:thealish/go-microservice.git
+git clone git@github.com:ummataliyev/go-microservice.git
 cd go-microservice
 cp infra/.env-example infra/.env
 ```
@@ -223,7 +223,7 @@ curl http://localhost:8080/
 # {"app":"go-microservice","version":"0.1.0","status":"running"}
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 Configuration is managed through environment variables, loaded via Viper from `infra/.env`.
 
@@ -246,7 +246,7 @@ Configuration is managed through environment variables, loaded via Viper from `i
 - `test` — Test-friendly defaults
 - `staging` / `production` — JSON logging, strict validation (no wildcard trusted hosts, JWT secret required)
 
-## Database Migrations
+## 🗄️ Database Migrations
 
 Migrations use [golang-migrate](https://github.com/golang-migrate/migrate) with SQL files embedded in the binary.
 
@@ -267,7 +267,7 @@ make migrate-create name=add_user_profile
 
 Migration files are stored in `internal/db/migrations/` and embedded via `//go:embed`.
 
-## Development Commands
+## 🛠️ Development Commands
 
 ```bash
 # Run & Build
@@ -301,7 +301,7 @@ make docker-ps              # Show running containers
 make docker-clean           # Stop & remove volumes (fresh start)
 ```
 
-## Swagger / API Docs
+## 📚 Swagger / API Docs
 
 Interactive API documentation is available at `/swagger/` when the server is running.
 
@@ -317,7 +317,7 @@ Swagger annotations live in the handler files (`internal/api/handlers/*.go`). Af
 
 To authenticate in Swagger UI, click **Authorize** and paste your JWT token directly (no `Bearer` prefix needed).
 
-## API Endpoints
+## 📡 API Endpoints
 
 ### Health Probes
 
@@ -361,7 +361,7 @@ All errors return a structured JSON envelope:
 }
 ```
 
-## Architecture
+## 🏗️ Architecture
 
 ### Layered Architecture
 
@@ -389,7 +389,7 @@ Response ← Middleware ← Router ← Handler ← DTO ← Model
 
 1. Request ID → 2. Timing → 3. Security Headers → 4. Trusted Host → 5. CORS → 6. Rate Limiter → 7. Error Handler
 
-## Security
+## 🔒 Security
 
 ### Authentication
 
@@ -416,7 +416,7 @@ Response ← Middleware ← Router ← Handler ← DTO ← Model
 - **SQL Injection Protection** — GORM parameterized queries
 - **Graceful Redis Fallback** — Rate limiting continues with in-memory counters
 
-## Testing
+## 🧪 Testing
 
 ```bash
 # Run all unit tests
@@ -451,7 +451,7 @@ go test ./internal/api/middleware/ -v
 | `internal/api/middleware` | 8 (rate limiter + trusted host + auth) |
 | `internal/repository` | 5 (integration, Postgres) |
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
@@ -472,7 +472,7 @@ go test ./internal/api/middleware/ -v
 - Define interfaces where consumed
 - Keep files small and focused
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 Built with:
 - [Fiber](https://gofiber.io/) — HTTP framework
@@ -486,3 +486,7 @@ Built with:
 - [gofiber/swagger](https://github.com/gofiber/swagger) — Swagger UI middleware
 - [testify](https://github.com/stretchr/testify) — Testing
 - [validator](https://github.com/go-playground/validator) — Input validation
+
+---
+
+**Happy Coding! 🚀**
