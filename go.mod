@@ -1,4 +1,4 @@
-module github.com/the_elita/go-microservice
+module github.com/thealish/go-microservice
 
 go 1.25.5
 

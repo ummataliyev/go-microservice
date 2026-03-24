@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	repoerrors "github.com/the_elita/go-microservice/internal/domain/errors"
-	"github.com/the_elita/go-microservice/internal/domain/models"
-	"github.com/the_elita/go-microservice/internal/repository"
-	"github.com/the_elita/go-microservice/internal/testutil"
+	repoerrors "github.com/thealish/go-microservice/internal/domain/errors"
+	"github.com/thealish/go-microservice/internal/domain/models"
+	"github.com/thealish/go-microservice/internal/repository"
+	"github.com/thealish/go-microservice/internal/testutil"
 )
 
 func TestCreateUser_Integration(t *testing.T) {

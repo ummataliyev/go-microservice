@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/the_elita/go-microservice/internal/config"
-	"github.com/the_elita/go-microservice/internal/domain/dto"
-	svcerrors "github.com/the_elita/go-microservice/internal/domain/errors"
-	"github.com/the_elita/go-microservice/internal/security"
+	"github.com/thealish/go-microservice/internal/config"
+	"github.com/thealish/go-microservice/internal/domain/dto"
+	svcerrors "github.com/thealish/go-microservice/internal/domain/errors"
+	"github.com/thealish/go-microservice/internal/security"
 )
 
 // --- Mock TokenService ---
