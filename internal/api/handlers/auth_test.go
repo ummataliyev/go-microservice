@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go-microservice/internal/api/handlers"
-	"go-microservice/internal/domain/dto"
-	svcerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/dto"
+	svcerrors "go-microservice/internal/errors"
 )
 
 // mockAuthService is a testify mock for AuthServicer.

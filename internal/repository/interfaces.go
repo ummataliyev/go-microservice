@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"go-microservice/internal/domain/models"
+	"go-microservice/internal/models"
 )
 
 // UserRepository defines the contract for user persistence operations.

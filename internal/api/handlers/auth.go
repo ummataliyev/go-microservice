@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/gofiber/fiber/v2"
-	"go-microservice/internal/domain/dto"
-	svcerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/dto"
+	svcerrors "go-microservice/internal/errors"
 	"go-microservice/internal/security"
 )
 

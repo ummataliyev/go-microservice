@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	domainerrors "go-microservice/internal/domain/errors"
+	domainerrors "go-microservice/internal/errors"
 	"go-microservice/internal/security"
 )
 

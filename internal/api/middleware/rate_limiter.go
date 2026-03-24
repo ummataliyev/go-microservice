@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
 	"go-microservice/internal/config"
-	domainerrors "go-microservice/internal/domain/errors"
+	domainerrors "go-microservice/internal/errors"
 )
 
 // counter is used for the in-memory rate-limiting fallback.

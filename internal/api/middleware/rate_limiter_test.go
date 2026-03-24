@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go-microservice/internal/config"
-	domainerrors "go-microservice/internal/domain/errors"
+	domainerrors "go-microservice/internal/errors"
 )
 
 func TestRateLimiter_SkipsWhenDisabled(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	repoerrors "go-microservice/internal/domain/errors"
-	"go-microservice/internal/domain/models"
+	repoerrors "go-microservice/internal/errors"
+	"go-microservice/internal/models"
 	"gorm.io/gorm"
 )
 

@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"go-microservice/internal/domain/dto"
-	svcerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/dto"
+	svcerrors "go-microservice/internal/errors"
 )
 
 // UserServicer defines the interface for the user service, consumed by the handler.

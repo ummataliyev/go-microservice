@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	domainerrors "go-microservice/internal/domain/errors"
+	domainerrors "go-microservice/internal/errors"
 )
 
 func TestTrustedHost_AllowsValidHost(t *testing.T) {

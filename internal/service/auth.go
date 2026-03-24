@@ -9,9 +9,9 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"go-microservice/internal/config"
-	"go-microservice/internal/domain/dto"
-	repoerrors "go-microservice/internal/domain/errors"
-	"go-microservice/internal/domain/models"
+	"go-microservice/internal/dto"
+	repoerrors "go-microservice/internal/errors"
+	"go-microservice/internal/models"
 	"go-microservice/internal/repository"
 	"go-microservice/internal/security"
 )

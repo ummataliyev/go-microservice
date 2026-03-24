@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"go-microservice/internal/domain/dto"
-	repoerrors "go-microservice/internal/domain/errors"
-	"go-microservice/internal/domain/models"
+	"go-microservice/internal/dto"
+	repoerrors "go-microservice/internal/errors"
+	"go-microservice/internal/models"
 )
 
 // --- Mocks ---

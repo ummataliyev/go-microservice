@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go-microservice/internal/config"
-	"go-microservice/internal/domain/dto"
-	svcerrors "go-microservice/internal/domain/errors"
+	"go-microservice/internal/dto"
+	svcerrors "go-microservice/internal/errors"
 	"go-microservice/internal/security"
 )
 

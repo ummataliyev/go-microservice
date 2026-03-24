@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	repoerrors "go-microservice/internal/domain/errors"
-	"go-microservice/internal/domain/models"
+	repoerrors "go-microservice/internal/errors"
+	"go-microservice/internal/models"
 	"go-microservice/internal/repository"
 	"go-microservice/internal/testutil"
 )

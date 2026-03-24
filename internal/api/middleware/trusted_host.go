@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	domainerrors "go-microservice/internal/domain/errors"
+	domainerrors "go-microservice/internal/errors"
 )
 
 // TrustedHost is a Fiber middleware that restricts requests to a set of allowed hosts.

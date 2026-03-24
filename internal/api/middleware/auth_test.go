@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go-microservice/internal/domain/errors"
+	"go-microservice/internal/errors"
 	"go-microservice/internal/security"
 )
 
