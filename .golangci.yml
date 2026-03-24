@@ -17,7 +17,7 @@ linters:
     - unparam
     - bodyclose
     - nilerr
-    - exportloopref
+    - copyloopvar
 
 linters-settings:
   gocritic:

@@ -66,7 +66,7 @@ func (rl *RateLimiter) Middleware() fiber.Handler {
 		if rl.redis != nil {
 			count, err = rl.incrRedis(c.Context(), key, window)
 		} else {
-			count, err = rl.incrMemory(key, window)
+			count = rl.incrMemory(key, window)
 		}
 		if err != nil {
 			return c.Next()
@@ -94,7 +94,7 @@ func (rl *RateLimiter) incrRedis(ctx context.Context, key string, window time.Du
 	return int(incrCmd.Val()), nil
 }
 
-func (rl *RateLimiter) incrMemory(key string, window time.Duration) (int, error) {
+func (rl *RateLimiter) incrMemory(key string, window time.Duration) int {
 	now := time.Now()
 	val, loaded := rl.counters.Load(key)
 	if loaded {
@@ -105,7 +105,7 @@ func (rl *RateLimiter) incrMemory(key string, window time.Duration) (int, error)
 		} else {
 			c.count++
 		}
-		return c.count, nil
+		return c.count
 	}
 
 	c := &counter{
@@ -121,7 +121,7 @@ func (rl *RateLimiter) incrMemory(key string, window time.Duration) (int, error)
 		} else {
 			existing.count++
 		}
-		return existing.count, nil
+		return existing.count
 	}
-	return c.count, nil
+	return c.count
 }

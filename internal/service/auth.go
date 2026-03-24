@@ -156,7 +156,7 @@ func (s *AuthService) checkLoginLock(ctx context.Context, email, ip string) erro
 	key := fmt.Sprintf("login_attempts:%s:%s", email, ip)
 	val, err := s.redis.Get(ctx, key).Int()
 	if err != nil {
-		return nil
+		return nil //nolint:nilerr // redis key not found means no lock
 	}
 
 	if val >= s.cfg.MaxAttempts {

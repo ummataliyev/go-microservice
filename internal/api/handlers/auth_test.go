@@ -82,6 +82,7 @@ func TestRegister_Success(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 	respBody, _ := io.ReadAll(resp.Body)
@@ -106,6 +107,7 @@ func TestRegister_InvalidBody(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 }
 
@@ -135,6 +137,7 @@ func TestLogin_Success(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	respBody, _ := io.ReadAll(resp.Body)
@@ -167,6 +170,7 @@ func TestLogin_InvalidCredentials(t *testing.T) {
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 
 	mockSvc.AssertExpectations(t)
