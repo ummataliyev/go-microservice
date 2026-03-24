@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,8 +17,6 @@ import (
 	"go-microservice/internal/repository"
 	"go-microservice/internal/security"
 	"go-microservice/internal/service"
-	"go.mongodb.org/mongo-driver/mongo"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -34,42 +31,23 @@ func main() {
 	log := logger.New(cfg.Logging, cfg.Server.Environment)
 
 	ctx := context.Background()
-	provider := strings.ToLower(cfg.Server.DBProvider)
 
-	// 3. Connect to the database.
-	var gormDB *gorm.DB
-	var mongoDB *mongo.Database
-
-	if provider == "mongo" {
-		mongoDB, err = db.NewMongoDatabase(ctx, *cfg, log)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to connect to MongoDB")
-		}
-	} else {
-		gormDB, err = db.NewDatabase(ctx, *cfg, log)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to connect to database")
-		}
+	// 3. Connect to PostgreSQL.
+	gormDB, err := db.NewPostgres(ctx, cfg.Postgres, log)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
 
-	// 4. Run migrations (postgres only).
-	if provider == "postgres" {
-		if err := db.RunMigrations(cfg.Postgres.DSN, log); err != nil {
-			log.Fatal().Err(err).Msg("failed to run migrations")
-		}
+	// 4. Run migrations.
+	if err := db.RunMigrations(cfg.Postgres.DSN, log); err != nil {
+		log.Fatal().Err(err).Msg("failed to run migrations")
 	}
 
 	// 5. Connect Redis (graceful — returns nil on failure).
 	redisClient := db.NewRedis(ctx, cfg.Redis, log)
 
 	// 6. Wire dependencies.
-	var repo repository.UserRepository
-	switch provider {
-	case "postgres", "mysql":
-		repo = repository.NewGORMUser(gormDB)
-	case "mongo":
-		repo = repository.NewUserMongo(mongoDB)
-	}
+	repo := repository.NewGORMUser(gormDB)
 
 	hasher := security.NewBcryptHasher()
 	jwtSvc := security.NewJWTService(cfg.JWT)
@@ -118,17 +96,10 @@ func main() {
 	}
 
 	// Close database.
-	if gormDB != nil {
-		sqlDB, err := gormDB.DB()
-		if err == nil {
-			if err := sqlDB.Close(); err != nil {
-				log.Error().Err(err).Msg("error closing database connection")
-			}
-		}
-	}
-	if mongoDB != nil {
-		if err := mongoDB.Client().Disconnect(ctx); err != nil {
-			log.Error().Err(err).Msg("error disconnecting from MongoDB")
+	sqlDB, err := gormDB.DB()
+	if err == nil {
+		if err := sqlDB.Close(); err != nil {
+			log.Error().Err(err).Msg("error closing database connection")
 		}
 	}
 

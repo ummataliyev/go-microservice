@@ -43,7 +43,6 @@ jobs:
       - name: Integration Tests
         run: go test -tags integration ./... -v -count=1
         env:
-          DB_PROVIDER: postgres
           POSTGRES_DSN: "host=localhost port=5432 user=test password=test dbname=test_db sslmode=disable"
           REDIS_HOST: localhost
           REDIS_PORT: "6379"

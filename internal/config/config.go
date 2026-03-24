@@ -17,7 +17,6 @@ type ServerConfig struct {
 	AppName      string `mapstructure:"app_name"`
 	AppVersion   string `mapstructure:"app_version"`
 	APIPrefix    string `mapstructure:"api_prefix"`
-	DBProvider   string `mapstructure:"db_provider"`
 }
 
 type JWTConfig struct {
@@ -38,18 +37,6 @@ type PostgresConfig struct {
 	PoolSize        int           `mapstructure:"pool_size"`
 	PoolMaxIdle     int           `mapstructure:"pool_max_idle"`
 	PoolMaxLifetime time.Duration `mapstructure:"pool_max_lifetime"`
-}
-
-type MySQLConfig struct {
-	DSN             string        `mapstructure:"dsn"`
-	PoolSize        int           `mapstructure:"pool_size"`
-	PoolMaxIdle     int           `mapstructure:"pool_max_idle"`
-	PoolMaxLifetime time.Duration `mapstructure:"pool_max_lifetime"`
-}
-
-type MongoConfig struct {
-	URI      string `mapstructure:"uri"`
-	Database string `mapstructure:"database"`
 }
 
 type RedisConfig struct {
@@ -86,8 +73,6 @@ type Config struct {
 	JWT        JWTConfig        `mapstructure:"jwt"`
 	Auth       AuthConfig       `mapstructure:"auth"`
 	Postgres   PostgresConfig   `mapstructure:"postgres"`
-	MySQL      MySQLConfig      `mapstructure:"mysql"`
-	Mongo      MongoConfig      `mapstructure:"mongo"`
 	Redis      RedisConfig      `mapstructure:"redis"`
 	RateLimit  RateLimitConfig  `mapstructure:"rate_limit"`
 	CORS       CORSConfig       `mapstructure:"cors"`
@@ -107,7 +92,6 @@ func Load() (*Config, error) {
 	v.SetDefault("server.app_name", "go-microservice")
 	v.SetDefault("server.app_version", "0.1.0")
 	v.SetDefault("server.api_prefix", "/api/v1")
-	v.SetDefault("server.db_provider", "postgres")
 
 	v.SetDefault("jwt.algorithm", "HS256")
 	v.SetDefault("jwt.access_token_expiry", 15*time.Minute)
@@ -120,10 +104,6 @@ func Load() (*Config, error) {
 	v.SetDefault("postgres.pool_size", 10)
 	v.SetDefault("postgres.pool_max_idle", 5)
 	v.SetDefault("postgres.pool_max_lifetime", 30*time.Minute)
-
-	v.SetDefault("mysql.pool_size", 10)
-	v.SetDefault("mysql.pool_max_idle", 5)
-	v.SetDefault("mysql.pool_max_lifetime", 30*time.Minute)
 
 	v.SetDefault("redis.host", "localhost")
 	v.SetDefault("redis.port", 6379)
@@ -177,12 +157,6 @@ func (c *Config) Validate() error {
 	// Require JWT secret in non-development environments
 	if env != "development" && c.JWT.SecretKey == "" {
 		return fmt.Errorf("jwt secret_key is required in %s environment", env)
-	}
-
-	// Validate db_provider
-	provider := strings.ToLower(c.Server.DBProvider)
-	if provider != "postgres" && provider != "mysql" && provider != "mongo" {
-		return fmt.Errorf("unsupported db_provider: %s (must be postgres, mysql, or mongo)", c.Server.DBProvider)
 	}
 
 	return nil

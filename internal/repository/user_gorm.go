@@ -12,7 +12,7 @@ import (
 )
 
 // GORMUserRepository implements UserRepository using GORM.
-// Works with any GORM-supported SQL database (Postgres, MySQL, SQLite, etc.)
+// Works with any GORM-supported SQL database (currently PostgreSQL).
 type GORMUserRepository struct {
 	db *gorm.DB
 }

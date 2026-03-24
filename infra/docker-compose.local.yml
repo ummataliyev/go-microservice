@@ -34,39 +34,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    profiles:
-      - postgres
-
-  mysql:
-    image: mysql:8.4
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: devpassword
-      MYSQL_DATABASE: app_dev
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    profiles:
-      - mysql
-
-  mongo:
-    image: mongo:7
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    profiles:
-      - mongo
 
   redis:
     image: redis:7-alpine
@@ -90,5 +57,3 @@ services:
 
 volumes:
   postgres_data:
-  mysql_data:
-  mongo_data:

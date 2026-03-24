@@ -3,8 +3,7 @@ BUILD_DIR := bin
 MAIN_PKG := ./cmd/api
 
 .PHONY: run build test test-unit test-integration lint fmt \
-        migrate-up migrate-down migrate-create \
-        docker-up-postgres docker-up-mysql docker-up-mongo
+        migrate-up migrate-down migrate-create docker-up
 
 ## run: Start the application
 run:
@@ -48,14 +47,6 @@ migrate-down:
 migrate-create:
 	go run ./cmd/migrate create $(name)
 
-## docker-up-postgres: Start PostgreSQL in Docker
-docker-up-postgres:
+## docker-up: Start PostgreSQL in Docker
+docker-up:
 	docker compose up -d postgres
-
-## docker-up-mysql: Start MySQL in Docker
-docker-up-mysql:
-	docker compose up -d mysql
-
-## docker-up-mongo: Start MongoDB in Docker
-docker-up-mongo:
-	docker compose up -d mongo
