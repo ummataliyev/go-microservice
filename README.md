@@ -246,6 +246,19 @@ Configuration is managed through environment variables, loaded via Viper from `i
 - `test` — Test-friendly defaults
 - `staging` / `production` — JSON logging, strict validation (no wildcard trusted hosts, JWT secret required)
 
+### Production Checklist
+
+Before exposing this service publicly, change every default below:
+
+- `JWT_SECRET_KEY` — generate with `openssl rand -hex 32`. The default `change-me-in-production` is unsafe and is rejected when `SERVER_ENVIRONMENT=production`.
+- `CORS_ALLOWED_ORIGINS` — set to the explicit comma-separated list of front-end origins. Wildcards are rejected in production.
+- `SERVER_TRUSTED_HOSTS` — list the actual hosts that should reach the service. `*` is rejected in production.
+- `POSTGRES_DSN` — point at a managed Postgres and inject the password via your secrets manager, not `infra/.env`.
+- `REDIS_HOST` / `REDIS_PORT` — production Redis with auth (set `REDIS_PASSWORD`).
+- `AUTH_MAX_ATTEMPTS` / `AUTH_LOCKOUT_SECONDS` — tune for your traffic shape.
+- `RATE_LIMIT_*` — enable and tune limits for your traffic shape.
+- `SERVER_DEBUG=false` — debug mode leaks stack traces.
+
 ## 🗄️ Database Migrations
 
 Migrations use [golang-migrate](https://github.com/golang-migrate/migrate) with SQL files embedded in the binary.
