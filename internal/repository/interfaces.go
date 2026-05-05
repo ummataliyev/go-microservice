@@ -16,3 +16,12 @@ type UserRepository interface {
 	Restore(ctx context.Context, id uint) error
 	Count(ctx context.Context) (int64, error)
 }
+
+type ItemRepository interface {
+	GetByID(ctx context.Context, id uint) (*models.Item, error)
+	GetAll(ctx context.Context, limit, offset int) ([]models.Item, error)
+	Create(ctx context.Context, item *models.Item) error
+	Update(ctx context.Context, item *models.Item) error
+	Delete(ctx context.Context, id uint) error
+	Count(ctx context.Context) (int64, error)
+}

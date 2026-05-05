@@ -9,4 +9,5 @@ var (
 	ErrLoginLocked        = errors.New("login locked due to too many failed attempts")
 	ErrUserAlreadyExists  = errors.New("user already exists")
 	ErrUserNotFound       = errors.New("user not found")
+	ErrItemNotFound       = errors.New("item not found")
 )
