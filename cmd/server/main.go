@@ -22,6 +22,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @title           Go Microservice API
+// @version         0.1.0
+// @description     Go microservice template — postgres + JWT auth + middlewares
+// @host            localhost:8080
+// @BasePath        /
+// @schemes         http https
+// @securityDefinitions.apikey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     "Type: Bearer {token}"
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
