@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
+//go:embed migrations/*.sql
 var migrationsFS embed.FS
 
 func RunMigrations(dbURL string, log zerolog.Logger) error {

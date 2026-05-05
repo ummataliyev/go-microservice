@@ -1,6 +1,6 @@
 APP_NAME := go-microservice
 BUILD_DIR := bin
-MAIN_PKG := ./cmd/api
+MAIN_PKG := ./cmd/server
 COMPOSE_FILE := infra/docker-compose.local.yml
 DOCKER_IMAGE := $(APP_NAME)
 
@@ -42,17 +42,12 @@ fmt:
 swagger:
 	swag init -g cmd/server/main.go -o docs --parseDependency --parseInternal
 
-## migrate-up: Run database migrations up
-migrate-up:
-	go run ./cmd/migrate up
-
-## migrate-down: Roll back last database migration
-migrate-down:
-	go run ./cmd/migrate down
-
 ## migrate-create: Create a new migration (usage: make migrate-create name=create_users)
 migrate-create:
-	go run ./cmd/migrate create $(name)
+	@test -n "$(name)" || (echo "usage: make migrate-create name=<migration_name>" && exit 1)
+	@next=$$(printf "%06d" $$(($$(ls internal/db/migrations 2>/dev/null | grep -oE '^[0-9]+' | sort -nr | head -1) + 1))); \
+	  touch internal/db/migrations/$${next}_$(name).up.sql internal/db/migrations/$${next}_$(name).down.sql; \
+	  echo "created internal/db/migrations/$${next}_$(name).{up,down}.sql"
 
 ## docker-build: Build the Docker image
 docker-build:
