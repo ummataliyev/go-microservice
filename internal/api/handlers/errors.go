@@ -24,6 +24,8 @@ func handleServiceError(c *fiber.Ctx, err error) error {
 		apiErr = svcerrors.NewUnauthorized(err.Error())
 	case errors.Is(err, svcerrors.ErrUserNotFound):
 		apiErr = svcerrors.NewNotFound(err.Error())
+	case errors.Is(err, svcerrors.ErrItemNotFound):
+		apiErr = svcerrors.NewNotFound(err.Error())
 	default:
 		apiErr = svcerrors.NewInternal("internal server error")
 	}

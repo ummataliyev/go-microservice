@@ -19,6 +19,7 @@ func SetupRouter(
 	healthHandler *handlers.HealthHandler,
 	authHandler *handlers.AuthHandler,
 	userHandler *handlers.UserHandler,
+	itemHandler *handlers.ItemHandler,
 	tokenSvc security.TokenService,
 	cfg config.Config,
 	redisClient *redis.Client,
@@ -57,4 +58,11 @@ func SetupRouter(
 	users.Post("/", userHandler.Create)
 	users.Patch("/:id", userHandler.Update)
 	users.Delete("/:id", userHandler.Delete)
+
+	items := app.Group("/api/v1/items")
+	items.Get("/", itemHandler.List)
+	items.Get("/:id", itemHandler.Get)
+	items.Post("/", itemHandler.Create)
+	items.Patch("/:id", itemHandler.Update)
+	items.Delete("/:id", itemHandler.Delete)
 }

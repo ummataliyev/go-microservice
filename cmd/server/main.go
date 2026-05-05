@@ -45,21 +45,24 @@ func main() {
 	redisClient := db.NewRedis(ctx, cfg.Redis, log)
 
 	repo := repository.NewGORMUser(gormDB)
+	itemRepo := repository.NewGORMItem(gormDB)
 
 	hasher := security.NewBcryptHasher()
 	jwtSvc := security.NewJWTService(cfg.JWT)
 	authSvc := service.NewAuth(repo, jwtSvc, hasher, redisClient, cfg.Auth)
 	userSvc := service.NewUsers(repo, hasher)
+	itemSvc := service.NewItems(itemRepo)
 
 	authHandler := handlers.NewAuth(authSvc)
 	userHandler := handlers.NewUsers(userSvc)
+	itemHandler := handlers.NewItems(itemSvc)
 	healthHandler := handlers.NewHealth(cfg.Server.AppName, cfg.Server.AppVersion)
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: middleware.ErrorHandler,
 	})
 
-	api.SetupRouter(app, healthHandler, authHandler, userHandler, jwtSvc, *cfg, redisClient, log)
+	api.SetupRouter(app, healthHandler, authHandler, userHandler, itemHandler, jwtSvc, *cfg, redisClient, log)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
