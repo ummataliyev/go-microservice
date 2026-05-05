@@ -17,16 +17,17 @@ const docTemplate = `{
     "paths": {
         "/": {
             "get": {
+                "description": "Returns app name, version, and running status.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
-                "summary": "Application info",
+                "summary": "Service info",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "app, version, status",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -39,6 +40,7 @@ const docTemplate = `{
         },
         "/api/v1/auth/login": {
             "post": {
+                "description": "Verifies credentials and returns a fresh access + refresh token pair.\nEmail matching is case-insensitive. Repeated failures from the same IP/email\nare throttled (see AUTH_MAX_ATTEMPTS / AUTH_LOCKOUT_SECONDS).",
                 "consumes": [
                     "application/json"
                 ],
@@ -46,13 +48,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
-                "summary": "Login with credentials",
+                "summary": "Log in with email and password",
                 "parameters": [
                     {
-                        "description": "Login credentials",
-                        "name": "body",
+                        "description": "Login payload",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -62,25 +64,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Fresh token pair",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.TokenResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Invalid credentials",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "422": {
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "429": {
-                        "description": "Too Many Requests",
+                        "description": "Account locked due to too many failed attempts or rate limit exceeded",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -95,22 +97,23 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "description": "Returns the authenticated user record. Requires a valid ` + "`" + `Authorization: Bearer \u003caccess_token\u003e` + "`" + ` header.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
-                "summary": "Get current user profile",
+                "summary": "Return the current user",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Authenticated user",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.MeResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -120,6 +123,7 @@ const docTemplate = `{
         },
         "/api/v1/auth/refresh": {
             "post": {
+                "description": "Validates the refresh JWT, revokes it, and issues a fresh access + refresh pair.\nReuse of a revoked refresh token returns 401.",
                 "consumes": [
                     "application/json"
                 ],
@@ -127,13 +131,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
-                "summary": "Refresh access token",
+                "summary": "Exchange a refresh token for a new pair",
                 "parameters": [
                     {
-                        "description": "Refresh token",
-                        "name": "body",
+                        "description": "Refresh payload",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -143,19 +147,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Fresh token pair",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.TokenResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
-                        }
-                    },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Invalid or revoked refresh token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -165,6 +163,7 @@ const docTemplate = `{
         },
         "/api/v1/auth/register": {
             "post": {
+                "description": "Creates a new user account and returns a JWT token pair.\nEmail is normalised to lowercase before storage.",
                 "consumes": [
                     "application/json"
                 ],
@@ -172,13 +171,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "Registration credentials",
-                        "name": "body",
+                        "description": "Registration payload",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -188,19 +187,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Token pair for the newly created user",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.TokenResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "409": {
+                        "description": "Email already exists",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "422": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -208,45 +213,254 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/": {
+        "/api/v1/items": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "description": "Returns a paginated list of items.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Items"
                 ],
-                "summary": "List users",
+                "summary": "List items (paginated)",
                 "parameters": [
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Page number",
+                        "description": "Page number (default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "Items per page",
+                        "description": "Items per page (default 20)",
                         "name": "per_page",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Paginated item list",
                         "schema": {
-                            "$ref": "#/definitions/go-microservice_internal_dto.UserListResponse"
+                            "$ref": "#/definitions/go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_ItemResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new item.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Create an item",
+                "parameters": [
+                    {
+                        "description": "Item payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_dto.CreateItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Newly created item",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_dto.ItemResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/items/{id}": {
+            "get": {
+                "description": "Returns a single item. 404 if missing.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Get an item by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item record",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_dto.ItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid item_id",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Item not found",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Hard-deletes the item record.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Delete an item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Invalid item_id",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Item not found",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates only the fields you send.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Update an item (partial)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_dto.UpdateItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated item",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_dto.ItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid item_id",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Item not found",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of active users.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "List users (paginated)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page (default 20)",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated user list",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_UserResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -259,6 +473,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "description": "Admin-style user creation. Hashes the password before storage.",
                 "consumes": [
                     "application/json"
                 ],
@@ -266,13 +481,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "Create a user",
                 "parameters": [
                     {
-                        "description": "User data",
-                        "name": "body",
+                        "description": "User payload",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -282,25 +497,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Newly created user",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.UserResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
-                        }
-                    },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "409": {
-                        "description": "Conflict",
+                        "description": "Email already exists",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -315,17 +530,18 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "description": "Returns a single user. 404 if missing.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Users"
                 ],
-                "summary": "Get user by ID",
+                "summary": "Get a user by id",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "user_id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -333,25 +549,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "User record",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.UserResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid user_id",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -364,17 +580,18 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "description": "Soft-deletes the user record.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "Delete a user",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "user_id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -382,25 +599,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Delete confirmation",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.DeleteResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid user_id",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -413,6 +630,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "description": "Updates only the fields you send.",
                 "consumes": [
                     "application/json"
                 ],
@@ -420,20 +638,20 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Users"
                 ],
-                "summary": "Update a user",
+                "summary": "Update a user (partial)",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "user_id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "description": "Fields to update",
-                        "name": "body",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -443,25 +661,31 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Updated user",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_dto.UserResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid user_id",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/go-microservice_internal_errors.ErrorResponse"
                         }
@@ -471,16 +695,17 @@ const docTemplate = `{
         },
         "/health": {
             "get": {
+                "description": "Returns 200 with status:ok when the process is running.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
-                "summary": "Health check",
+                "summary": "Liveness check",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "status:ok",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -493,16 +718,17 @@ const docTemplate = `{
         },
         "/live": {
             "get": {
+                "description": "Returns 200 with status:alive when the process is running.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
-                "summary": "Liveness probe",
+                "summary": "Liveness probe (Kubernetes-style)",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "status:alive",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -515,16 +741,17 @@ const docTemplate = `{
         },
         "/ready": {
             "get": {
+                "description": "Returns 200 when the service is ready to accept traffic.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Health"
                 ],
                 "summary": "Readiness probe",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "status:ready",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -537,6 +764,30 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "go-microservice_internal_dto.CreateItemRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "24-hour fermented; baked daily."
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Sourdough loaf"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 12
+                }
+            }
+        },
         "go-microservice_internal_dto.CreateUserRequest": {
             "type": "object",
             "required": [
@@ -562,6 +813,29 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-microservice_internal_dto.ItemResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -597,6 +871,34 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_ItemResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/go-microservice_internal_dto.ItemResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/go-microservice_internal_dto.PaginationMeta"
+                }
+            }
+        },
+        "go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_UserResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/go-microservice_internal_dto.UserResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/go-microservice_internal_dto.PaginationMeta"
                 }
             }
         },
@@ -664,6 +966,27 @@ const docTemplate = `{
                 }
             }
         },
+        "go-microservice_internal_dto.UpdateItemRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "Updated recipe."
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Sourdough loaf v2"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 20
+                }
+            }
+        },
         "go-microservice_internal_dto.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -675,20 +998,6 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 6,
                     "example": "newsecret123"
-                }
-            }
-        },
-        "go-microservice_internal_dto.UserListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/go-microservice_internal_dto.UserResponse"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/go-microservice_internal_dto.PaginationMeta"
                 }
             }
         },
@@ -734,7 +1043,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "Enter \"Bearer {token}\"",
+            "description": "\"Type: Bearer {token}\"",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -747,9 +1056,9 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "0.1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
-	Schemes:          []string{"http"},
+	Schemes:          []string{"http", "https"},
 	Title:            "Go Microservice API",
-	Description:      "REST API with authentication, user management, and health checks.",
+	Description:      "Go microservice template — postgres + JWT auth + middlewares",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

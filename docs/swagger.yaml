@@ -1,5 +1,23 @@
 basePath: /
 definitions:
+  go-microservice_internal_dto.CreateItemRequest:
+    properties:
+      description:
+        example: 24-hour fermented; baked daily.
+        maxLength: 1000
+        type: string
+      name:
+        example: Sourdough loaf
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        example: 12
+        minimum: 0
+        type: integer
+    required:
+    - name
+    type: object
   go-microservice_internal_dto.CreateUserRequest:
     properties:
       email:
@@ -18,6 +36,21 @@ definitions:
       id:
         type: integer
       status:
+        type: string
+    type: object
+  go-microservice_internal_dto.ItemResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      quantity:
+        type: integer
+      updated_at:
         type: string
     type: object
   go-microservice_internal_dto.LoginRequest:
@@ -42,6 +75,24 @@ definitions:
         type: integer
       updated_at:
         type: string
+    type: object
+  go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_ItemResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/go-microservice_internal_dto.ItemResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/go-microservice_internal_dto.PaginationMeta'
+    type: object
+  go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_UserResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/go-microservice_internal_dto.UserResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/go-microservice_internal_dto.PaginationMeta'
     type: object
   go-microservice_internal_dto.PaginationMeta:
     properties:
@@ -86,6 +137,22 @@ definitions:
       token_type:
         type: string
     type: object
+  go-microservice_internal_dto.UpdateItemRequest:
+    properties:
+      description:
+        example: Updated recipe.
+        maxLength: 1000
+        type: string
+      name:
+        example: Sourdough loaf v2
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        example: 20
+        minimum: 0
+        type: integer
+    type: object
   go-microservice_internal_dto.UpdateUserRequest:
     properties:
       email:
@@ -95,15 +162,6 @@ definitions:
         example: newsecret123
         minLength: 6
         type: string
-    type: object
-  go-microservice_internal_dto.UserListResponse:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/go-microservice_internal_dto.UserResponse'
-        type: array
-      meta:
-        $ref: '#/definitions/go-microservice_internal_dto.PaginationMeta'
     type: object
   go-microservice_internal_dto.UserResponse:
     properties:
@@ -133,32 +191,37 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: REST API with authentication, user management, and health checks.
+  description: Go microservice template — postgres + JWT auth + middlewares
   title: Go Microservice API
   version: 0.1.0
 paths:
   /:
     get:
+      description: Returns app name, version, and running status.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: app, version, status
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Application info
+      summary: Service info
       tags:
-      - health
+      - Health
   /api/v1/auth/login:
     post:
       consumes:
       - application/json
+      description: |-
+        Verifies credentials and returns a fresh access + refresh token pair.
+        Email matching is case-insensitive. Repeated failures from the same IP/email
+        are throttled (see AUTH_MAX_ATTEMPTS / AUTH_LOCKOUT_SECONDS).
       parameters:
-      - description: Login credentials
+      - description: Login payload
         in: body
-        name: body
+        name: request
         required: true
         schema:
           $ref: '#/definitions/go-microservice_internal_dto.LoginRequest'
@@ -166,50 +229,56 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Fresh token pair
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.TokenResponse'
-        "400":
-          description: Bad Request
+        "401":
+          description: Invalid credentials
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
-        "401":
-          description: Unauthorized
+        "422":
+          description: Validation error
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "429":
-          description: Too Many Requests
+          description: Account locked due to too many failed attempts or rate limit
+            exceeded
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
-      summary: Login with credentials
+      summary: Log in with email and password
       tags:
-      - auth
+      - Auth
   /api/v1/auth/me:
     get:
+      description: 'Returns the authenticated user record. Requires a valid `Authorization:
+        Bearer <access_token>` header.'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Authenticated user
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.MeResponse'
         "401":
-          description: Unauthorized
+          description: Missing or invalid token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get current user profile
+      summary: Return the current user
       tags:
-      - auth
+      - Auth
   /api/v1/auth/refresh:
     post:
       consumes:
       - application/json
+      description: |-
+        Validates the refresh JWT, revokes it, and issues a fresh access + refresh pair.
+        Reuse of a revoked refresh token returns 401.
       parameters:
-      - description: Refresh token
+      - description: Refresh payload
         in: body
-        name: body
+        name: request
         required: true
         schema:
           $ref: '#/definitions/go-microservice_internal_dto.RefreshRequest'
@@ -217,28 +286,27 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Fresh token pair
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.TokenResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "401":
-          description: Unauthorized
+          description: Invalid or revoked refresh token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
-      summary: Refresh access token
+      summary: Exchange a refresh token for a new pair
       tags:
-      - auth
+      - Auth
   /api/v1/auth/register:
     post:
       consumes:
       - application/json
+      description: |-
+        Creates a new user account and returns a JWT token pair.
+        Email is normalised to lowercase before storage.
       parameters:
-      - description: Registration credentials
+      - description: Registration payload
         in: body
-        name: body
+        name: request
         required: true
         schema:
           $ref: '#/definitions/go-microservice_internal_dto.RegisterRequest'
@@ -246,30 +314,35 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Token pair for the newly created user
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.TokenResponse'
-        "400":
-          description: Bad Request
+        "409":
+          description: Email already exists
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
-        "409":
-          description: Conflict
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "429":
+          description: Rate limit exceeded
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       summary: Register a new user
       tags:
-      - auth
-  /api/v1/users/:
+      - Auth
+  /api/v1/items:
     get:
+      description: Returns a paginated list of items.
       parameters:
       - default: 1
-        description: Page number
+        description: Page number (default 1)
         in: query
         name: page
         type: integer
       - default: 20
-        description: Items per page
+        description: Items per page (default 20)
         in: query
         name: per_page
         type: integer
@@ -277,25 +350,164 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Paginated item list
           schema:
-            $ref: '#/definitions/go-microservice_internal_dto.UserListResponse'
+            $ref: '#/definitions/go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_ItemResponse'
+      summary: List items (paginated)
+      tags:
+      - Items
+    post:
+      consumes:
+      - application/json
+      description: Creates a new item.
+      parameters:
+      - description: Item payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/go-microservice_internal_dto.CreateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Newly created item
+          schema:
+            $ref: '#/definitions/go-microservice_internal_dto.ItemResponse'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+      summary: Create an item
+      tags:
+      - Items
+  /api/v1/items/{id}:
+    delete:
+      description: Hard-deletes the item record.
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Invalid item_id
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "404":
+          description: Item not found
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+      summary: Delete an item
+      tags:
+      - Items
+    get:
+      description: Returns a single item. 404 if missing.
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Item record
+          schema:
+            $ref: '#/definitions/go-microservice_internal_dto.ItemResponse'
+        "400":
+          description: Invalid item_id
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "404":
+          description: Item not found
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+      summary: Get an item by id
+      tags:
+      - Items
+    patch:
+      consumes:
+      - application/json
+      description: Updates only the fields you send.
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/go-microservice_internal_dto.UpdateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated item
+          schema:
+            $ref: '#/definitions/go-microservice_internal_dto.ItemResponse'
+        "400":
+          description: Invalid item_id
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "404":
+          description: Item not found
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+      summary: Update an item (partial)
+      tags:
+      - Items
+  /api/v1/users:
+    get:
+      description: Returns a paginated list of active users.
+      parameters:
+      - default: 1
+        description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page (default 20)
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated user list
+          schema:
+            $ref: '#/definitions/go-microservice_internal_dto.PaginatedResponse-go-microservice_internal_dto_UserResponse'
         "401":
-          description: Unauthorized
+          description: Missing or invalid token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: List users
+      summary: List users (paginated)
       tags:
-      - users
+      - Users
     post:
       consumes:
       - application/json
+      description: Admin-style user creation. Hashes the password before storage.
       parameters:
-      - description: User data
+      - description: User payload
         in: body
-        name: body
+        name: request
         required: true
         schema:
           $ref: '#/definitions/go-microservice_internal_dto.CreateUserRequest'
@@ -303,30 +515,31 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Newly created user
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.UserResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "401":
-          description: Unauthorized
+          description: Missing or invalid token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "409":
-          description: Conflict
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "422":
+          description: Validation error
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a user
       tags:
-      - users
+      - Users
   /api/v1/users/{id}:
     delete:
+      description: Soft-deletes the user record.
       parameters:
-      - description: user_id
+      - description: User ID
         in: path
         name: id
         required: true
@@ -335,29 +548,30 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Delete confirmation
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.DeleteResponse'
         "400":
-          description: Bad Request
+          description: Invalid user_id
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "401":
-          description: Unauthorized
+          description: Missing or invalid token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "404":
-          description: Not Found
+          description: User not found
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a user
       tags:
-      - users
+      - Users
     get:
+      description: Returns a single user. 404 if missing.
       parameters:
-      - description: user_id
+      - description: User ID
         in: path
         name: id
         required: true
@@ -366,38 +580,39 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: User record
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.UserResponse'
         "400":
-          description: Bad Request
+          description: Invalid user_id
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "401":
-          description: Unauthorized
+          description: Missing or invalid token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "404":
-          description: Not Found
+          description: User not found
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get user by ID
+      summary: Get a user by id
       tags:
-      - users
+      - Users
     patch:
       consumes:
       - application/json
+      description: Updates only the fields you send.
       parameters:
-      - description: user_id
+      - description: User ID
         in: path
         name: id
         required: true
         type: integer
       - description: Fields to update
         in: body
-        name: body
+        name: request
         required: true
         schema:
           $ref: '#/definitions/go-microservice_internal_dto.UpdateUserRequest'
@@ -405,73 +620,81 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Updated user
           schema:
             $ref: '#/definitions/go-microservice_internal_dto.UserResponse'
         "400":
-          description: Bad Request
+          description: Invalid user_id
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "401":
-          description: Unauthorized
+          description: Missing or invalid token
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
         "404":
-          description: Not Found
+          description: User not found
+          schema:
+            $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
+        "422":
+          description: Validation error
           schema:
             $ref: '#/definitions/go-microservice_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Update a user
+      summary: Update a user (partial)
       tags:
-      - users
+      - Users
   /health:
     get:
+      description: Returns 200 with status:ok when the process is running.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: status:ok
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Health check
+      summary: Liveness check
       tags:
-      - health
+      - Health
   /live:
     get:
+      description: Returns 200 with status:alive when the process is running.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: status:alive
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Liveness probe
+      summary: Liveness probe (Kubernetes-style)
       tags:
-      - health
+      - Health
   /ready:
     get:
+      description: Returns 200 when the service is ready to accept traffic.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: status:ready
           schema:
             additionalProperties:
               type: string
             type: object
       summary: Readiness probe
       tags:
-      - health
+      - Health
 schemes:
 - http
+- https
 securityDefinitions:
   BearerAuth:
-    description: Enter "Bearer {token}"
+    description: '"Type: Bearer {token}"'
     in: header
     name: Authorization
     type: apiKey
